@@ -226,3 +226,6 @@ with gr.Blocks(
         clear_btn2.click(lambda: ("", 0), outputs=[json_output, latency_out2])
 
 demo.queue()
+
+if __name__ == "__main__":
+    demo.launch()
