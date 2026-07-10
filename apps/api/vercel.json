@@ -1,0 +1,10 @@
+{
+  "version": 2,
+  "buildCommand": "npm install && npx tsc --noEmit",
+  "outputDirectory": ".",
+  "functions": {
+    "api/**/*.ts": {
+      "runtime": "@vercel/node@5"
+    }
+  }
+}
