@@ -1,5 +1,7 @@
 import { useRouter } from 'next/router';
 import { useState } from 'react';
+import Link from 'next/link';
+import Image from 'next/image';
 
 const links = [
   { href: '/translate', label: 'Translate' },
@@ -12,15 +14,25 @@ export default function TopNav() {
   const [mobileOpen, setMobileOpen] = useState(false);
 
   return (
-    <header className="fixed top-0 left-0 right-0 z-50 h-14 bg-surface-1 border-b border-border">
+    <header className="fixed top-0 left-0 right-0 z-50 h-14 bg-surface-1 border-b border-border dark:bg-brand-dark">
       <div className="max-w-container mx-auto px-6 h-full flex items-center justify-between">
-        <a href="/" className="text-base font-semibold text-text-primary tracking-tight">
-          Vernacular
-        </a>
+        <Link href="/" className="flex items-center gap-2 shrink-0">
+          <picture>
+            <source srcSet="/logo_dark.png" media="(prefers-color-scheme: dark)" />
+            <Image
+              src="/logo_light.png"
+              alt="Vernacular"
+              width={140}
+              height={32}
+              className="h-6 w-auto"
+              priority
+            />
+          </picture>
+        </Link>
 
         <nav className="hidden md:flex items-center gap-6">
           {links.map((link) => (
-            <a
+            <Link
               key={link.href}
               href={link.href}
               className={`text-sm font-medium transition-colors ${
@@ -30,7 +42,7 @@ export default function TopNav() {
               }`}
             >
               {link.label}
-            </a>
+            </Link>
           ))}
         </nav>
 
@@ -39,8 +51,8 @@ export default function TopNav() {
             Sign in
           </a>
           <a
-            href="#"
-            className="text-sm font-medium px-4 py-[6px] bg-accent text-white rounded-md hover:bg-accent-hover transition-colors"
+            href="/orgs/signup"
+            className="text-sm font-medium px-4 py-[6px] bg-accent text-accentOn rounded-md hover:bg-accent-hover transition-colors"
           >
             Create org account
           </a>
@@ -60,7 +72,7 @@ export default function TopNav() {
       {mobileOpen && (
         <div className="md:hidden bg-surface-1 border-b border-border px-6 py-4 space-y-3">
           {links.map((link) => (
-            <a
+            <Link
               key={link.href}
               href={link.href}
               className={`block text-sm font-medium ${
@@ -69,11 +81,11 @@ export default function TopNav() {
               onClick={() => setMobileOpen(false)}
             >
               {link.label}
-            </a>
+            </Link>
           ))}
           <hr className="border-border" />
           <a href="#" className="block text-sm text-text-secondary">Sign in</a>
-          <a href="#" className="block text-sm font-medium text-accent">Create org account</a>
+          <a href="/orgs/signup" className="block text-sm font-medium text-accent">Create org account</a>
         </div>
       )}
     </header>

@@ -130,7 +130,7 @@ export default function HomePage() {
               <a href="#" className="hover:text-text-primary transition-colors">Privacy</a>
               <a href="#" className="hover:text-text-primary transition-colors">Governance</a>
               <a href="#" className="hover:text-text-primary transition-colors">GitHub</a>
-              <a href="#" className="hover:text-text-primary transition-colors">Assembly Code</a>
+              {/* <a href="#" className="hover:text-text-primary transition-colors">Assembly Code</a> */}
             </nav>
           </div>
           <p className="text-xs text-text-tertiary text-center mt-6">
