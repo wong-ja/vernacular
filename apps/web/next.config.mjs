@@ -3,10 +3,12 @@ const nextConfig = {
   reactStrictMode: true,
   transpilePackages: ['@vernacular/shared', '@vernacular/glossary'],
   async rewrites() {
+    const raw = process.env.API_URL || 'http://localhost:3001';
+    const base = raw.startsWith('http://') || raw.startsWith('https://') ? raw : `https://${raw}`;
     return [
       {
         source: '/api/:path*',
-        destination: `${process.env.API_URL || 'http://localhost:3001'}/api/:path*`,
+        destination: `${base}/api/:path*`,
       },
     ];
   },

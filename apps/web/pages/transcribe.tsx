@@ -62,6 +62,16 @@ export default function TranscribePage() {
       setProgress(100);
       setProgressLabel('Complete');
 
+      if (!res.ok) {
+        const text = await res.text();
+        let msg: string;
+        try { msg = JSON.parse(text).message || text; } catch { msg = text || res.statusText; }
+        setError(`API ${res.status}: ${msg}`);
+        setStage('upload');
+        setLoading(false);
+        return;
+      }
+
       const json = await res.json();
       if (json.status === 'ok') {
         setTimeout(() => {

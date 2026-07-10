@@ -47,6 +47,13 @@ export default function TranslatePage() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ text, sourceLang, targetLang, domain, mode, modelOverrides }),
       });
+      if (!res.ok) {
+        const text = await res.text();
+        let msg: string;
+        try { msg = JSON.parse(text).message || text; } catch { msg = text || res.statusText; }
+        setError(`API ${res.status}: ${msg}`);
+        return;
+      }
       const json = await res.json();
       if (json.status === 'ok') {
         setResult(json.data);
