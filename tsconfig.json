@@ -1,0 +1,30 @@
+{
+  "compilerOptions": {
+    "target": "ES2022",
+    "module": "ESNext",
+    "moduleResolution": "bundler",
+    "jsx": "react-jsx",
+    "strict": true,
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true,
+    "resolveJsonModule": true,
+    "declaration": true,
+    "declarationMap": true,
+    "sourceMap": true,
+    "outDir": "./dist",
+    "rootDir": ".",
+    "baseUrl": ".",
+    "paths": {
+      "@vernacular/shared/*": ["./packages/shared/src/*"],
+      "@vernacular/glossary": ["./packages/glossary/src/index.ts"],
+      "@vernacular/api/*": ["./apps/api/src/*"]
+    }
+  },
+  "include": [
+    "packages/shared/src/**/*.ts",
+    "packages/glossary/src/**/*.ts",
+    "apps/web/components/**/*.tsx",
+    "apps/api/src/**/*.ts"
+  ]
+}

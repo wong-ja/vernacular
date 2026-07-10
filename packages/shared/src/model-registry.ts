@@ -1,0 +1,779 @@
+// packages/shared/src/model-registry.ts
+// VERIFIED JULY 2026 — update annually
+
+export type ModelLicense =
+  | 'MIT'
+  | 'Apache-2.0'
+  | 'CC-BY-NC-4.0'
+  | 'CPML'
+  | 'CC-BY-NC-SA-4.0';
+
+export type ModelTask = 'asr' | 'translation' | 'tts' | 'pipeline';
+export type ModelMode = 'fast' | 'balanced' | 'accurate' | 'rare-language';
+export type LicensePermission = 'open' | 'non-commercial';
+export type InferenceBackend =
+  | 'faster-whisper'
+  | 'insanely-fast-whisper'
+  | 'whisperx'
+  | 'huggingface-transformers'
+  | 'ctranslate2'
+  | 'onnx'
+  | 'native';
+
+export interface RealWorldWER {
+  condition: string;
+  wer: string;
+  notes?: string;
+}
+
+export interface AccuracyNote {
+  langCode: string;
+  note: string;
+  winsVsDefault: boolean;
+  metric?: string;
+}
+
+export interface ModelEntry {
+  id: string;
+  name: string;
+  task: ModelTask;
+  license: ModelLicense;
+  licensePermission: LicensePermission;
+  licenseNote: string;
+  watermarked: boolean;
+  watermarkNote: string | null;
+  params: string;
+  developer: string;
+  languages: string[];
+  languageCodes: string[];
+  speedCpu: string;
+  speedGpu: string;
+  estimatePerMinuteAudio: string;
+  realWorldWER?: RealWorldWER[];
+  accuracyRating: 1 | 2 | 3;
+  privacySelfHosted: true;
+  bestFor: string;
+  weaknesses: string;
+  modes: ModelMode[];
+  isDefaultFor: string[];
+  requiresGpu: boolean;
+  recommendedBackends: InferenceBackend[];
+  huggingFaceUrl: string;
+  paperUrl?: string;
+  accuracyNotes?: AccuracyNote[];
+  paidPhaseOnly?: boolean;
+  disqualifiedReason?: string;
+}
+
+export const MODEL_REGISTRY: ModelEntry[] = [
+
+  // ASR — SPEECH TO TEXT
+
+  {
+    id: 'faster-whisper-large-v3',
+    name: 'Whisper Large-v3',
+    task: 'asr',
+    license: 'MIT',
+    licensePermission: 'open',
+    licenseNote: 'Fully open source. Any use permitted.',
+    watermarked: false,
+    watermarkNote: null,
+    params: '1.55B',
+    developer: 'OpenAI',
+    languages: ['99 languages including most AAPI, African, and European languages'],
+    languageCodes: ['eng_Latn','spa_Latn','tgl_Latn','vie_Latn',
+                    'hat_Latn','hin_Deva','jpn_Jpan','kor_Hang',
+                    'ara_Arab','zho_Hans','zho_Hant','fra_Latn',
+                    'deu_Latn','por_Latn','ita_Latn','nld_Latn'],
+    speedCpu: '~10x real-time',
+    speedGpu: '~100x real-time (CTranslate2) · ~380x real-time (batch + Flash Attention 2)',
+    estimatePerMinuteAudio: '30–60s on CPU · 5–10s on GPU (CTranslate2) · under 1s on GPU batch (Flash Attention 2)',
+    realWorldWER: [
+      { condition: 'Clean studio, 1 speaker', wer: '3–5%', notes: 'Podcasts, interviews' },
+      { condition: 'Conference call, 2 speakers', wer: '7–10%', notes: 'Business meetings' },
+      { condition: 'Zoom/Teams call, 3 speakers', wer: '10–14%', notes: 'Real-world meetings' },
+      { condition: 'Phone audio (8kHz)', wer: '12–18%', notes: 'Telephony' },
+      { condition: 'Accented English', wer: '8–15%', notes: 'Varies by accent' },
+      { condition: 'Noisy environment', wer: '15–25%', notes: 'Cafe, street' },
+    ],
+    accuracyRating: 3,
+    privacySelfHosted: true,
+    bestFor: 'Best overall multilingual accuracy. Gold standard for 99 languages. Strongest on Japanese and Korean among open models. Real-world accuracy depends heavily on audio quality.',
+    weaknesses: 'Slow on CPU for long audio without batching. Real-world WER 3–5x higher than benchmark WER on clean audio. Can hallucinate on silent segments.',
+    modes: ['balanced', 'accurate'],
+    isDefaultFor: ['tgl_Latn','vie_Latn','hat_Latn','hin_Deva',
+                   'jpn_Jpan','kor_Hang','ara_Arab'],
+    requiresGpu: false,
+    recommendedBackends: ['faster-whisper', 'insanely-fast-whisper', 'whisperx'],
+    huggingFaceUrl: 'https://huggingface.co/openai/whisper-large-v3',
+    accuracyNotes: [
+      { langCode: 'jpn_Jpan', note: 'More accurate than SenseVoice for Japanese (10.34% vs 11.96% CER)', winsVsDefault: true, metric: '10.34% CER' },
+      { langCode: 'kor_Hang', note: 'Significantly more accurate than SenseVoice for Korean (5.59% vs 8.28% CER)', winsVsDefault: true, metric: '5.59% CER' },
+    ]
+  },
+
+  {
+    id: 'whisper-large-v3-turbo',
+    name: 'Whisper Large-v3 Turbo',
+    task: 'asr',
+    license: 'MIT',
+    licensePermission: 'open',
+    licenseNote: 'Fully open source. Any use permitted.',
+    watermarked: false,
+    watermarkNote: null,
+    params: '809M',
+    developer: 'OpenAI',
+    languages: ['99 languages'],
+    languageCodes: ['eng_Latn','spa_Latn','fra_Latn','deu_Latn','tgl_Latn','vie_Latn'],
+    speedCpu: '~50x real-time',
+    speedGpu: '~216x real-time',
+    estimatePerMinuteAudio: '5–15s on CPU · under 5s on GPU',
+    realWorldWER: [
+      { condition: 'Clean English audio', wer: '3–4%' },
+      { condition: 'Real-world meetings', wer: '12–16%', notes: 'Slightly worse than Large-v3' },
+    ],
+    accuracyRating: 2,
+    privacySelfHosted: true,
+    bestFor: 'Speed with near-identical accuracy to Large-v3 on high-resource languages. 8x faster than Large-v3 in real-time mode.',
+    weaknesses: 'Slightly worse on Thai and some low-resource languages. Not worth the quality tradeoff on Hmong, Khmer, or other low-resource languages.',
+    modes: ['fast', 'balanced'],
+    isDefaultFor: ['spa_Latn','fra_Latn','deu_Latn'],
+    requiresGpu: false,
+    recommendedBackends: ['faster-whisper', 'insanely-fast-whisper'],
+    huggingFaceUrl: 'https://huggingface.co/openai/whisper-large-v3-turbo',
+  },
+
+  {
+    id: 'parakeet-v3',
+    name: 'Parakeet TDT v3',
+    task: 'asr',
+    license: 'Apache-2.0',
+    licensePermission: 'open',
+    licenseNote: 'Fully open source. Any use permitted.',
+    watermarked: false,
+    watermarkNote: null,
+    params: '600M',
+    developer: 'NVIDIA NeMo',
+    languages: ['25 European and English languages'],
+    languageCodes: ['eng_Latn','spa_Latn','fra_Latn','deu_Latn',
+                    'ita_Latn','por_Latn','nld_Latn','pol_Latn'],
+    speedCpu: '~40x real-time',
+    speedGpu: '~103–161x real-time',
+    estimatePerMinuteAudio: 'Under 3s on GPU · 8–15s on CPU',
+    accuracyRating: 3,
+    privacySelfHosted: true,
+    bestFor: 'English and European languages. Fastest accurate ASR available open source. Both faster AND more accurate than Whisper on English.',
+    weaknesses: 'Only 25 languages — no AAPI, African, or non-European support.',
+    modes: ['fast', 'balanced', 'accurate'],
+    isDefaultFor: ['eng_Latn'],
+    requiresGpu: false,
+    recommendedBackends: ['native'],
+    huggingFaceUrl: 'https://huggingface.co/nvidia/parakeet-tdt-0.6b-v2',
+  },
+
+  {
+    id: 'sense-voice-small',
+    name: 'SenseVoice Small',
+    task: 'asr',
+    license: 'Apache-2.0',
+    licensePermission: 'open',
+    licenseNote: 'Fully open source. Any use permitted.',
+    watermarked: false,
+    watermarkNote: null,
+    params: '~300M',
+    developer: 'FunAudioLLM (Alibaba DAMO)',
+    languages: ['5 languages: Chinese (Mandarin), Cantonese, English, Japanese, Korean'],
+    languageCodes: ['zho_Hans','zho_Hant','yue_Hant','eng_Latn','jpn_Jpan','kor_Hang'],
+    speedCpu: '~52x real-time',
+    speedGpu: '~118x real-time',
+    estimatePerMinuteAudio: 'Under 5s on GPU · 10–15s on CPU',
+    accuracyRating: 3,
+    privacySelfHosted: true,
+    bestFor: 'Chinese (Mandarin) and Cantonese — faster AND more accurate than Whisper on both. Also detects emotion and audio events. Non-autoregressive: speed does not degrade on long audio.',
+    weaknesses: 'Only 5 languages. Whisper is more accurate on Korean and Japanese despite SenseVoice being faster. Can output Chinese on very quiet segments.',
+    modes: ['fast', 'balanced', 'accurate'],
+    isDefaultFor: ['yue_Hant','zho_Hans','zho_Hant'],
+    requiresGpu: false,
+    recommendedBackends: ['huggingface-transformers'],
+    huggingFaceUrl: 'https://huggingface.co/FunAudioLLM/SenseVoiceSmall',
+    accuracyNotes: [
+      { langCode: 'yue_Hant', note: 'Wins vs Whisper on Cantonese: 7.09% CER vs 10.41% — 32% improvement', winsVsDefault: true, metric: '7.09% CER' },
+      { langCode: 'zho_Hans', note: 'Wins vs Whisper on Mandarin: 10.78% CER vs 12.55% — 14% improvement', winsVsDefault: true, metric: '10.78% CER' },
+      { langCode: 'jpn_Jpan', note: 'Loses to Whisper on Japanese (11.96% vs 10.34% CER) — use Whisper', winsVsDefault: false, metric: '11.96% CER' },
+      { langCode: 'kor_Hang', note: 'Loses to Whisper on Korean (8.28% vs 5.59% CER) — use Whisper', winsVsDefault: false, metric: '8.28% CER' },
+    ]
+  },
+
+  {
+    id: 'mms-1b-all',
+    name: 'MMS-1B (Meta Massively Multilingual Speech)',
+    task: 'asr',
+    license: 'CC-BY-NC-4.0',
+    licensePermission: 'non-commercial',
+    licenseNote: 'Non-commercial use only. Vernacular is free and non-commercial — permitted.',
+    watermarked: false,
+    watermarkNote: null,
+    params: '1B',
+    developer: 'Meta AI',
+    languages: ['1,107 languages — the only open ASR option for Hmong, Khmer, Wolof, and most Indigenous languages'],
+    languageCodes: ['hmn_Latn','khm_Khmr','hat_Latn','yor_Latn','wol_Latn','plus-1100-more'],
+    speedCpu: '~15x real-time',
+    speedGpu: '~80x real-time',
+    estimatePerMinuteAudio: '10–20s on CPU · 3–8s on GPU',
+    accuracyRating: 2,
+    privacySelfHosted: true,
+    bestFor: 'The only viable open ASR option for Hmong, Khmer, Wolof, many Indigenous languages, and 1,000+ others not in Whisper. Without MMS, these communities have no open ASR path at all.',
+    weaknesses: 'Lower accuracy than Whisper on languages both support. Training data skewed toward religious texts — may affect prosody for civic/medical content.',
+    modes: ['rare-language'],
+    isDefaultFor: ['hmn_Latn','khm_Khmr','wol_Latn'],
+    requiresGpu: false,
+    recommendedBackends: ['huggingface-transformers'],
+    huggingFaceUrl: 'https://huggingface.co/facebook/mms-1b-all',
+    paperUrl: 'https://arxiv.org/abs/2305.13516',
+  },
+
+  {
+    id: 'seamlessm4t-v2-large',
+    name: 'SeamlessM4T v2 Large',
+    task: 'pipeline',
+    license: 'CC-BY-NC-4.0',
+    licensePermission: 'non-commercial',
+    licenseNote: 'Non-commercial use only. Vernacular is free and non-commercial — permitted.',
+    watermarked: false,
+    watermarkNote: null,
+    params: '2.3B',
+    developer: 'Meta AI',
+    languages: ['101 speech in · 96 text in/out · 35 speech out'],
+    languageCodes: ['eng_Latn','spa_Latn','ara_Arab','zho_Hans','fra_Latn','hin_Deva','plus-95-more'],
+    speedCpu: '~5x real-time',
+    speedGpu: '~50x real-time',
+    estimatePerMinuteAudio: '60–120s on CPU · 10–20s on GPU',
+    accuracyRating: 3,
+    privacySelfHosted: true,
+    bestFor: 'All-in-one pipeline: speech→text, text→text, text→speech, speech→speech in one model. Reduces cascade errors. Best Arabic ASR among open models.',
+    weaknesses: 'Slowest model in the registry. High VRAM (8–16GB). Fewer languages than NLLB-200 for text translation.',
+    modes: ['accurate'],
+    isDefaultFor: ['ara_Arab'],
+    requiresGpu: true,
+    recommendedBackends: ['huggingface-transformers'],
+    huggingFaceUrl: 'https://huggingface.co/facebook/seamless-m4t-v2-large',
+    paperUrl: 'https://arxiv.org/abs/2308.11596',
+  },
+
+  // DISQUALIFIED ASR — noted for user education
+
+  {
+    id: 'assemblyai-universal-3',
+    name: 'AssemblyAI Universal-3.5 Pro',
+    task: 'asr',
+    license: 'MIT',
+    licensePermission: 'open',
+    licenseNote: 'Proprietary cloud API — not open source.',
+    watermarked: false,
+    watermarkNote: null,
+    params: 'Unknown (proprietary)',
+    developer: 'AssemblyAI',
+    languages: ['99 languages'],
+    languageCodes: ['eng_Latn','spa_Latn','fra_Latn'],
+    speedCpu: 'N/A — cloud only',
+    speedGpu: 'N/A — cloud only',
+    estimatePerMinuteAudio: 'Fast — ~5–10s via API',
+    accuracyRating: 3,
+    privacySelfHosted: true,
+    bestFor: 'Industry-leading accuracy for English and meeting audio. Real-time and pre-recorded modes.',
+    weaknesses: 'Paid cloud API. Audio must be sent to AssemblyAI servers. Cannot be self-hosted on free tier.',
+    modes: [],
+    isDefaultFor: [],
+    requiresGpu: false,
+    recommendedBackends: [],
+    huggingFaceUrl: 'https://www.assemblyai.com',
+    paidPhaseOnly: true,
+    disqualifiedReason: 'Cloud API — audio leaves your servers. Privacy architecture disqualifies this model for Vernacular\'s free phase. Consider for paid phase if users explicitly opt in.',
+  },
+
+  {
+    id: 'microsoft-mai-transcribe-1',
+    name: 'Microsoft MAI Transcribe 1',
+    task: 'asr',
+    license: 'MIT',
+    licensePermission: 'open',
+    licenseNote: 'Available via Azure AI Foundry — not self-hostable.',
+    watermarked: false,
+    watermarkNote: null,
+    params: 'Unknown (proprietary)',
+    developer: 'Microsoft',
+    languages: ['25 languages including English, Spanish, French, German, Japanese, Mandarin, Hindi, Arabic'],
+    languageCodes: ['eng_Latn','spa_Latn','fra_Latn','deu_Latn','jpn_Jpan','zho_Hans','hin_Deva','ara_Arab'],
+    speedCpu: 'N/A — Azure cloud only',
+    speedGpu: 'N/A — Azure cloud only',
+    estimatePerMinuteAudio: 'Fast via API',
+    accuracyRating: 3,
+    privacySelfHosted: true,
+    bestFor: 'Beats Whisper, Gemini Flash, and GPT-4o Transcribe on WER benchmarks across 25 languages (April 2026 benchmark). Best-in-class for real-world noisy audio.',
+    weaknesses: 'Azure cloud only. Requires Azure subscription. Audio sent to Microsoft servers.',
+    modes: [],
+    isDefaultFor: [],
+    requiresGpu: false,
+    recommendedBackends: [],
+    huggingFaceUrl: 'https://azure.microsoft.com/en-us/products/ai-services/speech-to-text',
+    paidPhaseOnly: true,
+    disqualifiedReason: 'Azure cloud API — audio leaves your infrastructure. Disqualified for Vernacular free phase on privacy and cost grounds. Strong candidate for future paid phase.',
+  },
+
+  // TRANSLATION — TEXT TO TEXT
+
+  {
+    id: 'nllb-200-3b',
+    name: 'NLLB-200 3.3B',
+    task: 'translation',
+    license: 'CC-BY-NC-4.0',
+    licensePermission: 'non-commercial',
+    licenseNote: 'Non-commercial use only. Vernacular is free and non-commercial — permitted.',
+    watermarked: false,
+    watermarkNote: null,
+    params: '3.3B',
+    developer: 'Meta AI',
+    languages: ['200 languages — broadest open translation coverage available'],
+    languageCodes: ['all-200-nllb-languages'],
+    speedCpu: 'Slow: ~2–5s per sentence',
+    speedGpu: 'Medium: ~0.5s per sentence',
+    estimatePerMinuteAudio: 'N/A — text translation',
+    accuracyRating: 3,
+    privacySelfHosted: true,
+    bestFor: 'Best quality open translation. Critical for Hmong, Khmer, Haitian Creole, African languages where smaller models produce noticeably worse output.',
+    weaknesses: 'Slow on CPU. ~6GB memory. Overkill for Spanish, French, German where 600M is nearly as good.',
+    modes: ['accurate', 'rare-language'],
+    isDefaultFor: ['hmn_Latn','khm_Khmr','hat_Latn','yue_Hant','wol_Latn','yor_Latn'],
+    requiresGpu: false,
+    recommendedBackends: ['ctranslate2'],
+    huggingFaceUrl: 'https://huggingface.co/facebook/nllb-200-3.3B',
+  },
+
+  {
+    id: 'nllb-200-1b',
+    name: 'NLLB-200 1.3B',
+    task: 'translation',
+    license: 'CC-BY-NC-4.0',
+    licensePermission: 'non-commercial',
+    licenseNote: 'Non-commercial use only. Vernacular is free and non-commercial — permitted.',
+    watermarked: false,
+    watermarkNote: null,
+    params: '1.3B',
+    developer: 'Meta AI',
+    languages: ['200 languages'],
+    languageCodes: ['all-200-nllb-languages'],
+    speedCpu: 'Medium: ~1–2s per sentence',
+    speedGpu: 'Fast: ~0.2s per sentence',
+    estimatePerMinuteAudio: 'N/A — text translation',
+    accuracyRating: 2,
+    privacySelfHosted: true,
+    bestFor: 'Quality-speed balance for most AAPI language pairs where 600M is noticeably weaker but 3.3B is too slow.',
+    weaknesses: 'Quality gap on very low-resource languages vs 3.3B.',
+    modes: ['balanced'],
+    isDefaultFor: ['tgl_Latn','vie_Latn','hin_Deva'],
+    requiresGpu: false,
+    recommendedBackends: ['ctranslate2'],
+    huggingFaceUrl: 'https://huggingface.co/facebook/nllb-200-distilled-1.3B',
+  },
+
+  {
+    id: 'nllb-200-600m',
+    name: 'NLLB-200 600M',
+    task: 'translation',
+    license: 'CC-BY-NC-4.0',
+    licensePermission: 'non-commercial',
+    licenseNote: 'Non-commercial use only. Vernacular is free and non-commercial — permitted.',
+    watermarked: false,
+    watermarkNote: null,
+    params: '600M',
+    developer: 'Meta AI',
+    languages: ['200 languages'],
+    languageCodes: ['all-200-nllb-languages'],
+    speedCpu: 'Fast: ~0.5s per sentence',
+    speedGpu: 'Very fast: ~0.1s per sentence',
+    estimatePerMinuteAudio: 'N/A — text translation',
+    accuracyRating: 1,
+    privacySelfHosted: true,
+    bestFor: 'Fast translation for high-resource languages (English, Spanish, French, German). Most popular NLLB model — well-tested.',
+    weaknesses: 'Noticeably lower quality on low-resource pairs. Do not use for Hmong, Khmer, or other low-resource languages.',
+    modes: ['fast'],
+    isDefaultFor: ['eng_Latn','spa_Latn','fra_Latn','deu_Latn'],
+    requiresGpu: false,
+    recommendedBackends: ['ctranslate2'],
+    huggingFaceUrl: 'https://huggingface.co/facebook/nllb-200-distilled-600M',
+  },
+
+  // TTS — TEXT TO SPEECH
+
+  {
+    id: 'kokoro-82m',
+    name: 'Kokoro-82M',
+    task: 'tts',
+    license: 'Apache-2.0',
+    licensePermission: 'open',
+    licenseNote: 'Fully open source. Any use permitted.',
+    watermarked: false,
+    watermarkNote: null,
+    params: '82M',
+    developer: 'Hexgrad',
+    languages: ['English (US/UK), French, Spanish, Hindi, Italian, Portuguese, Japanese, Mandarin Chinese'],
+    languageCodes: ['eng_Latn','fra_Latn','spa_Latn','hin_Deva','ita_Latn','por_Latn','jpn_Jpan','zho_Hans'],
+    speedCpu: '3–11x real-time',
+    speedGpu: '~210x real-time',
+    estimatePerMinuteAudio: 'N/A — generates audio',
+    accuracyRating: 2,
+    privacySelfHosted: true,
+    bestFor: 'Efficiency champion — 82M params, outperforms models 10x larger. Runs on almost any hardware. #1 on HuggingFace TTS Spaces Arena. 54+ built-in voices. Apache 2.0 (most permissive license in this list).',
+    weaknesses: 'No voice cloning — preset voices only. Only 8 languages.',
+    modes: ['fast', 'balanced'],
+    isDefaultFor: ['eng_Latn','jpn_Jpan'],
+    requiresGpu: false,
+    recommendedBackends: ['native'],
+    huggingFaceUrl: 'https://huggingface.co/hexgrad/Kokoro-82M',
+  },
+
+  {
+    id: 'piper-tts',
+    name: 'Piper TTS',
+    task: 'tts',
+    license: 'MIT',
+    licensePermission: 'open',
+    licenseNote: 'Fully open source. Any use permitted.',
+    watermarked: false,
+    watermarkNote: null,
+    params: 'Small per-language (~60–300MB)',
+    developer: 'Rhasspy / Open Home Foundation',
+    languages: ['60+ languages with per-language models — very fast CPU inference, designed for edge/embedded devices'],
+    languageCodes: ['eng_Latn','spa_Latn','fra_Latn','deu_Latn','zho_Hans','jpn_Jpan',
+                    'vie_Latn','hin_Deva','kor_Hang','por_Latn','plus-50-more'],
+    speedCpu: '~200x real-time (extremely fast CPU)',
+    speedGpu: 'Not needed',
+    estimatePerMinuteAudio: 'Under 0.5s on CPU',
+    accuracyRating: 1,
+    privacySelfHosted: true,
+    bestFor: 'Fastest CPU TTS available. Designed for offline/edge use. Per-language models are small and download quickly. MIT license. Good for quick audio previews or accessibility features. Vietnamese coverage is notable.',
+    weaknesses: 'Lower naturalness than Kokoro or Chatterbox. Very robotic on some languages. No voice cloning. Quality varies significantly by language model.',
+    modes: ['fast'],
+    isDefaultFor: [],
+    requiresGpu: false,
+    recommendedBackends: ['native'],
+    huggingFaceUrl: 'https://huggingface.co/rhasspy/piper-voices',
+  },
+
+  {
+    id: 'chatterbox-multilingual-v3',
+    name: 'Chatterbox Multilingual V3',
+    task: 'tts',
+    license: 'MIT',
+    licensePermission: 'open',
+    licenseNote: 'Fully open source. Any use permitted.',
+    watermarked: true,
+    watermarkNote: 'All audio generated by Chatterbox includes an imperceptible neural watermark (PerTh by Resemble AI) embedded in every output file. This watermark: survives MP3 re-encoding, audio editing, and common manipulations; identifies the audio as AI-generated; is traceable to Resemble AI; cannot be removed without degrading audio quality. This is disclosed here so you can make an informed choice about whether to use this model.',
+    params: '~500M',
+    developer: 'Resemble AI',
+    languages: ['23 languages: Arabic, Chinese, Czech, Dutch, English, Finnish, French, German, Hebrew, Hindi, Italian, Japanese, Korean, Norwegian, Polish, Portuguese, Russian, Spanish, Swedish, Turkish, Ukrainian, Vietnamese'],
+    languageCodes: ['eng_Latn','spa_Latn','fra_Latn','deu_Latn','zho_Hans',
+                    'jpn_Jpan','kor_Hang','ara_Arab','hin_Deva','por_Latn',
+                    'rus_Cyrl','vie_Latn','tur_Latn','pol_Latn','nld_Latn',
+                    'swe_Latn','nor_Latn','fin_Latn','heb_Hebr','ita_Latn',
+                    'ces_Latn','ukr_Cyrl'],
+    speedCpu: 'Medium',
+    speedGpu: 'Real-time streaming, sub-200ms',
+    estimatePerMinuteAudio: 'N/A — generates audio',
+    accuracyRating: 3,
+    privacySelfHosted: true,
+    bestFor: 'Highest naturalness MIT-licensed open TTS. Voice cloning from 10 seconds of audio. Emotion exaggeration control. Preferred over ElevenLabs in 63.75% of blind tests.',
+    weaknesses: 'All outputs contain a permanent PerTh neural watermark traceable to Resemble AI — see watermarkNote. Users should be informed and given a choice.',
+    modes: ['balanced', 'accurate'],
+    isDefaultFor: ['spa_Latn','fra_Latn','deu_Latn','kor_Hang','ara_Arab',
+                   'hin_Deva','por_Latn','rus_Cyrl','vie_Latn'],
+    requiresGpu: false,
+    recommendedBackends: ['huggingface-transformers'],
+    huggingFaceUrl: 'https://huggingface.co/ResembleAI/chatterbox',
+  },
+
+  {
+    id: 'melo-tts',
+    name: 'MeloTTS',
+    task: 'tts',
+    license: 'MIT',
+    licensePermission: 'open',
+    licenseNote: 'Fully open source. Any use permitted.',
+    watermarked: false,
+    watermarkNote: null,
+    params: 'Unknown',
+    developer: 'MyShell.ai',
+    languages: ['English (multiple accents), Chinese, Japanese, Korean, Spanish, French — with mixed Chinese-English code-switching support'],
+    languageCodes: ['eng_Latn','zho_Hans','jpn_Jpan','kor_Hang','spa_Latn','fra_Latn'],
+    speedCpu: 'Fast — optimized for real-time CPU',
+    speedGpu: 'Very fast',
+    estimatePerMinuteAudio: 'N/A — generates audio',
+    accuracyRating: 2,
+    privacySelfHosted: true,
+    bestFor: 'Real-time CPU inference without GPU. Mixed Chinese-English code-switching — handles "Chinglish" naturally, critical for many AAPI bilingual contexts. Multiple English accents (American, British, Indian, Australian, Default).',
+    weaknesses: 'Fewer languages than Chatterbox. No voice cloning. Less naturalness than Chatterbox on most languages.',
+    modes: ['fast', 'balanced'],
+    isDefaultFor: ['zho_Hans'],
+    requiresGpu: false,
+    recommendedBackends: ['native'],
+    huggingFaceUrl: 'https://huggingface.co/myshell-ai/MeloTTS-English',
+  },
+
+  {
+    id: 'mms-tts',
+    name: 'MMS-TTS',
+    task: 'tts',
+    license: 'CC-BY-NC-4.0',
+    licensePermission: 'non-commercial',
+    licenseNote: 'Non-commercial use only. Vernacular is free and non-commercial — permitted.',
+    watermarked: false,
+    watermarkNote: null,
+    params: 'Varies per language model',
+    developer: 'Meta AI',
+    languages: ['1,107 languages — only open TTS option for most rare languages'],
+    languageCodes: ['hmn_Latn','khm_Khmr','hat_Latn','tgl_Latn','vie_Latn','yor_Latn','wol_Latn','plus-1100-more'],
+    speedCpu: 'Fast',
+    speedGpu: 'Very fast',
+    estimatePerMinuteAudio: 'N/A — generates audio',
+    accuracyRating: 1,
+    privacySelfHosted: true,
+    bestFor: 'The only viable open TTS for Hmong, Khmer, Wolof, Tagalog, and most rare languages. Without MMS-TTS, these communities have no open audio output path.',
+    weaknesses: 'Lower naturalness than Kokoro or Chatterbox. Training data skewed toward religious readings — may affect prosody. Sounds robotic on some languages.',
+    modes: ['rare-language'],
+    isDefaultFor: ['hmn_Latn','khm_Khmr','hat_Latn','tgl_Latn','wol_Latn','yor_Latn'],
+    requiresGpu: false,
+    recommendedBackends: ['huggingface-transformers'],
+    huggingFaceUrl: 'https://huggingface.co/facebook/mms-tts',
+  },
+
+  {
+    id: 'coqui-xtts-v2',
+    name: 'Coqui XTTS-v2 (community fork)',
+    task: 'tts',
+    license: 'CPML',
+    licensePermission: 'non-commercial',
+    licenseNote: 'Coqui Public Model License — non-commercial only. Original company shut down December 2023. Community-maintained at github.com/idiap/coqui-ai-TTS.',
+    watermarked: false,
+    watermarkNote: null,
+    params: 'Unknown',
+    developer: 'Coqui AI (community-maintained)',
+    languages: ['17 languages: English, Spanish, French, German, Italian, Portuguese, Polish, Turkish, Russian, Dutch, Czech, Arabic, Chinese, Japanese, Hungarian, Korean, Hindi'],
+    languageCodes: ['eng_Latn','spa_Latn','fra_Latn','deu_Latn','ita_Latn',
+                    'por_Latn','pol_Latn','tur_Latn','rus_Cyrl','nld_Latn',
+                    'ces_Latn','ara_Arab','zho_Hans','jpn_Jpan','hun_Latn',
+                    'kor_Hang','hin_Deva'],
+    speedCpu: 'Medium',
+    speedGpu: 'Streaming <200ms',
+    estimatePerMinuteAudio: 'N/A — generates audio',
+    accuracyRating: 2,
+    privacySelfHosted: true,
+    bestFor: 'Voice cloning from just 6 seconds of audio. Cross-language voice cloning. Fairseq models extend to ~1,100 languages at lower quality.',
+    weaknesses: 'Non-commercial license. Company shut down. Community-maintained only. Chatterbox generally preferred for better-supported languages.',
+    modes: ['balanced'],
+    isDefaultFor: [],
+    requiresGpu: true,
+    recommendedBackends: ['huggingface-transformers'],
+    huggingFaceUrl: 'https://huggingface.co/coqui/XTTS-v2',
+  },
+];
+
+// MODE PRESETS
+
+export interface ModePreset {
+  label: string;
+  icon: string;
+  description: string;
+  userFacingDescription: string;
+  asrModelId: string;
+  translationModelId: string;
+  ttsModelId: string;
+  inferenceBackend: InferenceBackend;
+  estimatedSpeedPerMinuteAudio: string;
+  accuracyNote: string;
+  realWorldNote: string;
+  privacyNote: string;
+}
+
+export const MODE_PRESETS: Record<ModelMode, ModePreset> = {
+  fast: {
+    label: 'Fast',
+    icon: '\u26A1',
+    description: 'Quicker results, slightly lower accuracy.',
+    userFacingDescription: 'Best for short texts and common languages like English and Spanish. Results in under 10 seconds for most audio.',
+    asrModelId: 'whisper-large-v3-turbo',
+    translationModelId: 'nllb-200-600m',
+    ttsModelId: 'kokoro-82m',
+    inferenceBackend: 'faster-whisper',
+    estimatedSpeedPerMinuteAudio: 'Under 10 seconds per minute of audio',
+    accuracyNote: 'Good accuracy for common languages.',
+    realWorldNote: 'Benchmark accuracy (2.7% WER) is on clean audio. Real-world meetings or noisy audio typically produces 10\u201320% WER. Audio quality matters more than model choice.',
+    privacyNote: 'All processing on Vernacular servers. No audio sent to external services.',
+  },
+  balanced: {
+    label: 'Balanced',
+    icon: '\u2696\uFE0F',
+    description: 'Good accuracy and reasonable speed.',
+    userFacingDescription: 'Recommended for most uses. Good accuracy across supported languages without long wait times.',
+    asrModelId: 'faster-whisper-large-v3',
+    translationModelId: 'nllb-200-1b',
+    ttsModelId: 'chatterbox-multilingual-v3',
+    inferenceBackend: 'faster-whisper',
+    estimatedSpeedPerMinuteAudio: '15\u201330 seconds per minute of audio',
+    accuracyNote: 'Very good accuracy across most supported languages.',
+    realWorldNote: 'Real-world accuracy varies by audio condition. See audio quality tips for best results.',
+    privacyNote: 'All processing on Vernacular servers. No audio sent to external services.',
+  },
+  accurate: {
+    label: 'Accurate',
+    icon: '\uD83C\uDFAF',
+    description: 'Highest accuracy. Takes longer.',
+    userFacingDescription: 'Best for important documents, medical or legal content, or anything where you need the most careful translation available.',
+    asrModelId: 'faster-whisper-large-v3',
+    translationModelId: 'nllb-200-3b',
+    ttsModelId: 'chatterbox-multilingual-v3',
+    inferenceBackend: 'whisperx',
+    estimatedSpeedPerMinuteAudio: '30\u2013120 seconds per minute of audio',
+    accuracyNote: 'Best open-source accuracy. Uses the largest models available.',
+    realWorldNote: 'Even in Accurate mode, noisy or multi-speaker audio significantly increases error rates. Consider reviewing results with a fluent speaker for high-stakes content.',
+    privacyNote: 'All processing on Vernacular servers. No audio sent to external services.',
+  },
+  'rare-language': {
+    label: 'Rare Language',
+    icon: '\uD83C\uDF0D',
+    description: 'For languages other models do not support.',
+    userFacingDescription: 'For Hmong, Khmer, Wolof, Indigenous languages, and other languages with limited AI support. Uses specialized models covering 1,100+ languages.',
+    asrModelId: 'mms-1b-all',
+    translationModelId: 'nllb-200-3b',
+    ttsModelId: 'mms-tts',
+    inferenceBackend: 'huggingface-transformers',
+    estimatedSpeedPerMinuteAudio: '20\u201360 seconds per minute of audio',
+    accuracyNote: 'Best available for rare languages, but accuracy is lower due to limited training data.',
+    realWorldNote: 'These languages have very limited AI training data. Accuracy will be significantly lower than for common languages. Community glossary contributions are the most effective way to improve results.',
+    privacyNote: 'All processing on Vernacular servers. No audio sent to external services.',
+  },
+};
+
+// PER-LANGUAGE DEFAULT CONFIGURATION
+
+export interface LanguageConfig {
+  code: string;
+  displayName: string;
+  nativeName: string;
+  defaultAsrModelId: string;
+  defaultTranslationModelId: string;
+  defaultTtsModelId: string;
+  defaultMode: ModelMode;
+  userNotice: string | null;
+  accuracyCaveat: string | null;
+}
+
+export const LANGUAGE_CONFIGS: LanguageConfig[] = [
+  {
+    code: 'eng_Latn', displayName: 'English', nativeName: 'English',
+    defaultAsrModelId: 'parakeet-v3',
+    defaultTranslationModelId: 'nllb-200-600m',
+    defaultTtsModelId: 'kokoro-82m',
+    defaultMode: 'fast',
+    userNotice: 'Parakeet TDT v3 is used for English \u2014 both faster and more accurate than Whisper for English.',
+    accuracyCaveat: null,
+  },
+  {
+    code: 'spa_Latn', displayName: 'Spanish', nativeName: 'Espa\u00F1ol',
+    defaultAsrModelId: 'whisper-large-v3-turbo',
+    defaultTranslationModelId: 'nllb-200-600m',
+    defaultTtsModelId: 'chatterbox-multilingual-v3',
+    defaultMode: 'fast',
+    userNotice: null,
+    accuracyCaveat: null,
+  },
+  {
+    code: 'tgl_Latn', displayName: 'Tagalog', nativeName: 'Tagalog',
+    defaultAsrModelId: 'faster-whisper-large-v3',
+    defaultTranslationModelId: 'nllb-200-1b',
+    defaultTtsModelId: 'mms-tts',
+    defaultMode: 'balanced',
+    userNotice: 'Community glossary is especially valuable for Tagalog \u2014 medical, legal, and educational terminology benefits greatly from community corrections.',
+    accuracyCaveat: null,
+  },
+  {
+    code: 'yue_Hant', displayName: 'Cantonese', nativeName: '\u5EE3\u6771\u8A71',
+    defaultAsrModelId: 'sense-voice-small',
+    defaultTranslationModelId: 'nllb-200-3b',
+    defaultTtsModelId: 'chatterbox-multilingual-v3',
+    defaultMode: 'balanced',
+    userNotice: 'SenseVoice Small is used for Cantonese \u2014 32% more accurate than standard Whisper (7.09% vs 10.41% CER). Translation uses Traditional Chinese script (yue_Hant). Cantonese and Mandarin are treated as distinct languages.',
+    accuracyCaveat: null,
+  },
+  {
+    code: 'zho_Hans', displayName: 'Chinese (Mandarin, Simplified)', nativeName: '\u666E\u901A\u8BDD\uFF08\u7B80\u4F53\uFF09',
+    defaultAsrModelId: 'sense-voice-small',
+    defaultTranslationModelId: 'nllb-200-1b',
+    defaultTtsModelId: 'melo-tts',
+    defaultMode: 'balanced',
+    userNotice: 'SenseVoice Small is used for Mandarin \u2014 faster and more accurate than Whisper. MeloTTS handles mixed Chinese-English speech (code-switching) naturally for bilingual contexts.',
+    accuracyCaveat: null,
+  },
+  {
+    code: 'vie_Latn', displayName: 'Vietnamese', nativeName: 'Ti\u1EBFng Vi\u1EC7t',
+    defaultAsrModelId: 'faster-whisper-large-v3',
+    defaultTranslationModelId: 'nllb-200-1b',
+    defaultTtsModelId: 'chatterbox-multilingual-v3',
+    defaultMode: 'balanced',
+    userNotice: null,
+    accuracyCaveat: null,
+  },
+  {
+    code: 'hmn_Latn', displayName: 'Hmong', nativeName: 'Hmoob',
+    defaultAsrModelId: 'mms-1b-all',
+    defaultTranslationModelId: 'nllb-200-3b',
+    defaultTtsModelId: 'mms-tts',
+    defaultMode: 'rare-language',
+    userNotice: null,
+    accuracyCaveat: 'Hmong has very limited AI training data. Accuracy will be lower than for common languages. Community glossary contributions for Hmong make the biggest single improvement to accuracy \u2014 if your organization serves Hmong-speaking communities, contributing a glossary directly helps future users.',
+  },
+  {
+    code: 'khm_Khmr', displayName: 'Khmer', nativeName: '\u1797\u17B6\u179F\u17B6\u1781\u17D2\u1798\u17C2\u179A',
+    defaultAsrModelId: 'mms-1b-all',
+    defaultTranslationModelId: 'nllb-200-3b',
+    defaultTtsModelId: 'mms-tts',
+    defaultMode: 'rare-language',
+    userNotice: null,
+    accuracyCaveat: 'Khmer has limited AI training data. Results should be reviewed by a fluent speaker for anything important.',
+  },
+  {
+    code: 'jpn_Jpan', displayName: 'Japanese', nativeName: '\u65E5\u672C\u8A9E',
+    defaultAsrModelId: 'faster-whisper-large-v3',
+    defaultTranslationModelId: 'nllb-200-1b',
+    defaultTtsModelId: 'kokoro-82m',
+    defaultMode: 'balanced',
+    userNotice: 'Whisper Large-v3 is used for Japanese \u2014 more accurate than SenseVoice despite SenseVoice being faster (10.34% vs 11.96% CER).',
+    accuracyCaveat: null,
+  },
+  {
+    code: 'kor_Hang', displayName: 'Korean', nativeName: '\uD55C\uAD6D\uC5B4',
+    defaultAsrModelId: 'faster-whisper-large-v3',
+    defaultTranslationModelId: 'nllb-200-1b',
+    defaultTtsModelId: 'chatterbox-multilingual-v3',
+    defaultMode: 'balanced',
+    userNotice: 'Whisper Large-v3 is used for Korean \u2014 significantly more accurate than SenseVoice (5.59% vs 8.28% CER).',
+    accuracyCaveat: null,
+  },
+  {
+    code: 'hat_Latn', displayName: 'Haitian Creole', nativeName: 'Krey\u00F2l ayisyen',
+    defaultAsrModelId: 'faster-whisper-large-v3',
+    defaultTranslationModelId: 'nllb-200-3b',
+    defaultTtsModelId: 'mms-tts',
+    defaultMode: 'accurate',
+    userNotice: 'NLLB-200 performs better than Google Translate on Haitian Creole. Community glossary highly recommended for civic and medical content.',
+    accuracyCaveat: null,
+  },
+  {
+    code: 'ara_Arab', displayName: 'Arabic', nativeName: '\u0627\u0644\u0639\u0631\u0628\u064A\u0629',
+    defaultAsrModelId: 'seamlessm4t-v2-large',
+    defaultTranslationModelId: 'nllb-200-3b',
+    defaultTtsModelId: 'chatterbox-multilingual-v3',
+    defaultMode: 'accurate',
+    userNotice: 'SeamlessM4T v2 is used for Arabic speech recognition \u2014 outperforms standard Whisper on Arabic.',
+    accuracyCaveat: null,
+  },
+];
