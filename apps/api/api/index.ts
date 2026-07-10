@@ -1,7 +1,7 @@
 import { buildApp } from '../src/app.js';
 
 let app: Awaited<ReturnType<typeof buildApp>>;
-let appReady: Promise<void> | null = null;
+let appReady: any = null;
 
 export default async function handler(req: any, res: any) {
   if (!app) {
