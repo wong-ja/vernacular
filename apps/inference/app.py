@@ -9,9 +9,48 @@ import logging
 import re
 
 # ---------------------------------------------------------------------------
-# Monkey-patches for Gradio 4.44.1 bugs on ZeroGPU
+# Monkey-patches for Gradio 4.44.1 + ZeroGPU bugs
 # ---------------------------------------------------------------------------
 
+# Patch 1: Jinja2 template cache — ZeroGPU adds unhashable globals
+import jinja2.environment as _jinja_env
+
+_orig_load_template = _jinja_env.Environment._load_template
+
+
+def _safe_globals_key(globals_):
+    """Make globals hashable even when it contains dict values."""
+    if not globals_:
+        return None
+    try:
+        parts = []
+        for k, v in sorted(globals_.items()):
+            if isinstance(v, dict):
+                v = _safe_globals_key(v)
+            elif isinstance(v, (list, set)):
+                v = tuple(v)
+            parts.append((k, v))
+        return tuple(parts)
+    except TypeError:
+        return str(globals_)
+
+
+def _patched_load_template(self, name, globals_):
+    cache_key = (name, _safe_globals_key(globals_))
+    try:
+        template = self.cache.get(cache_key)
+        if template is None:
+            template = self._load(name, globals_)
+            if self.cache is not None:
+                self.cache[cache_key] = template
+        return template
+    except TypeError:
+        return self._load(name, globals_)
+
+
+_jinja_env.Environment._load_template = _patched_load_template
+
+# Patch 2: gradio_client JSON schema — bool values crash schema parser
 import gradio_client.utils as _gc_utils
 
 _orig_json_schema_to_python_type = _gc_utils._json_schema_to_python_type
@@ -260,4 +299,4 @@ with gr.Blocks(
 demo.queue()
 
 if __name__ == "__main__":
-    demo.launch(share=True)
+    demo.launch()
