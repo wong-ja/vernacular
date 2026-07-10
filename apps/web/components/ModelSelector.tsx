@@ -25,18 +25,6 @@ const ACCURACY_DOTS: Record<number, string> = {
   1: '\u2B24\u25CB\u25CB good',
 };
 
-const LICENSE_BADGE_OPEN: { bg: string; text: string; icon: string } = {
-  bg: 'bg-green-100 dark:bg-green-900/30',
-  text: 'text-green-800 dark:text-green-300',
-  icon: '\u2713',
-};
-
-const LICENSE_BADGE_NC: { bg: string; text: string; icon: string } = {
-  bg: 'bg-amber-100 dark:bg-amber-900/30',
-  text: 'text-amber-800 dark:text-amber-300',
-  icon: '\u26A0\uFE0F',
-};
-
 function getLanguageConfig(code: string): LanguageConfig | undefined {
   return LANGUAGE_CONFIGS.find((c) => c.code === code);
 }
@@ -94,7 +82,6 @@ function estimateProcessingTime(
 
 function LicenseBadge({ license, licensePermission, licenseNote }: ModelEntry) {
   const isOpen = licensePermission === 'open';
-  const badge = isOpen ? LICENSE_BADGE_OPEN : LICENSE_BADGE_NC;
   const label = isOpen ? 'Open license' : 'Non-commercial';
   const tooltip = isOpen
     ? 'MIT or Apache 2.0 \u2014 any use, any product.'
@@ -102,10 +89,12 @@ function LicenseBadge({ license, licensePermission, licenseNote }: ModelEntry) {
 
   return (
     <span
-      className={`inline-flex items-center gap-1 px-2 py-0.5 rounded text-xs font-medium ${badge.bg} ${badge.text}`}
+      className={`inline-flex items-center gap-1 px-2 py-0.5 rounded text-xs font-medium ${
+        isOpen ? 'bg-success-bg text-success-text' : 'bg-warning-bg text-warning-text'
+      }`}
       title={tooltip}
     >
-      {badge.icon} {label}
+      {isOpen ? '\u2713' : '\u26A0\uFE0F'} {label}
     </span>
   );
 }
@@ -115,17 +104,17 @@ function WatermarkWarning({ model }: { model: ModelEntry }) {
   if (!model.watermarked || !model.watermarkNote) return null;
 
   return (
-    <div className="mt-2 p-3 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-md">
+    <div className="mt-2 p-3 bg-warning-bg border border-warning rounded-md">
       <button
         onClick={() => setExpanded(!expanded)}
-        className="flex items-center gap-2 text-sm font-medium text-amber-800 dark:text-amber-300"
+        className="flex items-center gap-2 text-sm font-medium text-warning-text"
       >
         <span aria-hidden="true">{'\u26A0\uFE0F'}</span>
         Audio outputs from this model include an imperceptible watermark.
-        <span className="text-xs ml-1">{expanded ? '▲' : '▼'}</span>
+        <span className="text-xs ml-1">{expanded ? '\u25B2' : '\u25BC'}</span>
       </button>
       {expanded && (
-        <p className="mt-2 text-sm text-amber-700 dark:text-amber-400 whitespace-pre-wrap">
+        <p className="mt-2 text-sm text-warning-text whitespace-pre-wrap">
           {model.watermarkNote}
         </p>
       )}
@@ -141,25 +130,25 @@ function AccuracyInRealConditions({ werEntries }: { werEntries: NonNullable<Mode
     <div className="mt-2">
       <button
         onClick={() => setExpanded(!expanded)}
-        className="text-xs text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 underline"
+        className="text-xs text-text-secondary hover:text-text-primary underline cursor-pointer"
       >
         {expanded ? 'Hide' : 'Show'} accuracy in real conditions
       </button>
       {expanded && (
         <table className="mt-1 w-full text-xs border-collapse">
           <thead>
-            <tr className="border-b border-gray-200 dark:border-gray-700">
-              <th className="text-left py-1 pr-2">Condition</th>
-              <th className="text-left py-1 pr-2">WER</th>
-              <th className="text-left py-1">Notes</th>
+            <tr className="border-b border-border">
+              <th className="text-left py-1 pr-2 text-text-secondary font-medium">Condition</th>
+              <th className="text-left py-1 pr-2 text-text-secondary font-medium">WER</th>
+              <th className="text-left py-1 text-text-secondary font-medium">Notes</th>
             </tr>
           </thead>
           <tbody>
             {werEntries.map((row, i) => (
-              <tr key={i} className="border-b border-gray-100 dark:border-gray-800">
-                <td className="py-1 pr-2 text-gray-600 dark:text-gray-400">{row.condition}</td>
-                <td className="py-1 pr-2 font-mono">{row.wer}</td>
-                <td className="py-1 text-gray-500 dark:text-gray-400">{row.notes || ''}</td>
+              <tr key={i} className="border-b border-border-subtle">
+                <td className="py-1 pr-2 text-text-secondary">{row.condition}</td>
+                <td className="py-1 pr-2 font-mono text-text-primary">{row.wer}</td>
+                <td className="py-1 text-text-tertiary">{row.notes || ''}</td>
               </tr>
             ))}
           </tbody>
@@ -186,17 +175,17 @@ function ModelPicker({
   const taskLabel = task === 'asr' ? 'Transcription' : task === 'translation' ? 'Translation' : 'Voice output';
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40" onClick={onClose}>
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70" onClick={onClose}>
       <div
-        className="bg-white dark:bg-gray-900 rounded-lg shadow-xl border border-gray-200 dark:border-gray-700 w-full max-w-lg max-h-[80vh] overflow-y-auto m-4"
+        className="bg-surface-1 rounded-lg shadow-lg border border-border w-full max-w-lg max-h-[80vh] overflow-y-auto m-4"
         onClick={(e) => e.stopPropagation()}
       >
-        <div className="p-4 border-b border-gray-200 dark:border-gray-700">
-          <h3 className="text-lg font-semibold">Choose {taskLabel} Model</h3>
+        <div className="p-4 border-b border-border">
+          <h3 className="text-lg font-semibold text-text-primary">Choose {taskLabel} Model</h3>
         </div>
         <div className="p-2">
           {models.length === 0 && (
-            <p className="p-3 text-sm text-gray-500">No models available for this task and language combination.</p>
+            <p className="p-3 text-sm text-text-tertiary">No models available for this task and language combination.</p>
           )}
           {models.map((model) => {
             const isCurrent = model.id === currentModelId;
@@ -214,24 +203,24 @@ function ModelPicker({
                 }}
                 className={`w-full text-left p-3 rounded-md transition-colors ${
                   isCurrent
-                    ? 'bg-blue-50 dark:bg-blue-900/20 border border-blue-300 dark:border-blue-700'
-                    : 'hover:bg-gray-50 dark:hover:bg-gray-800'
+                    ? 'bg-accent-subtle border border-accent'
+                    : 'hover:bg-surface-2'
                 } ${isDisabled ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}`}
               >
                 <div className="flex items-center justify-between">
                   <div>
-                    <span className="font-medium text-sm">{model.name}</span>
-                    <span className="ml-2 text-xs text-gray-500 dark:text-gray-400">{model.developer}</span>
+                    <span className="font-medium text-sm text-text-primary">{model.name}</span>
+                    <span className="ml-2 text-xs text-text-tertiary">{model.developer}</span>
                   </div>
                   {isCurrent && (
-                    <span className="text-xs bg-blue-100 dark:bg-blue-900/40 text-blue-700 dark:text-blue-300 px-2 py-0.5 rounded">
+                    <span className="text-xs bg-accent-subtle text-accent px-2 py-0.5 rounded">
                       Active
                     </span>
                   )}
                 </div>
-                <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">{model.licenseNote}</p>
+                <p className="text-xs text-text-secondary mt-1">{model.licenseNote}</p>
                 {isDisabled && (
-                  <p className="text-xs text-amber-600 dark:text-amber-400 mt-1 font-medium">
+                  <p className="text-xs text-warning-text mt-1 font-medium">
                     Not available \u2014 requires paid API
                   </p>
                 )}
@@ -239,10 +228,10 @@ function ModelPicker({
             );
           })}
         </div>
-        <div className="p-3 border-t border-gray-200 dark:border-gray-700 flex justify-end">
+        <div className="p-3 border-t border-border flex justify-end">
           <button
             onClick={onClose}
-            className="px-4 py-2 text-sm font-medium bg-gray-100 dark:bg-gray-800 rounded-md hover:bg-gray-200 dark:hover:bg-gray-700"
+            className="px-4 py-2 text-sm font-medium bg-surface-2 text-text-primary rounded-md hover:bg-surface-3 transition-colors cursor-pointer"
           >
             Close
           </button>
@@ -271,7 +260,7 @@ function ModelRow({
   if (!model) {
     return (
       <div className="flex items-center justify-between py-2">
-        <span className="text-sm text-red-500">Model not found: {modelId}</span>
+        <span className="text-sm text-error-text">Model not found: {modelId}</span>
       </div>
     );
   }
@@ -279,27 +268,27 @@ function ModelRow({
   const accuracyLabel = ACCURACY_DOTS[model.accuracyRating] || ACCURACY_DOTS[2];
 
   return (
-    <div className="py-3 border-b border-gray-100 dark:border-gray-800 last:border-b-0">
+    <div className="py-3 border-b border-border-subtle last:border-b-0">
       <div className="flex items-start justify-between">
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2 flex-wrap">
-            <span className="font-medium text-sm">{model.name}</span>
-            <span className="text-xs text-gray-500 dark:text-gray-400">{model.developer}</span>
+            <span className="font-medium text-sm text-text-primary">{model.name}</span>
+            <span className="text-xs text-text-tertiary">{model.developer}</span>
             <LicenseBadge {...model} />
           </div>
           {model.watermarked && (
-            <p className="text-xs text-amber-600 dark:text-amber-400 mt-1">
+            <p className="text-xs text-warning-text mt-1">
               {'\u26A0\uFE0F'} Audio outputs include an imperceptible watermark
             </p>
           )}
-          <div className="flex items-center gap-3 mt-1 text-xs text-gray-500 dark:text-gray-400">
+          <div className="flex items-center gap-3 mt-1 text-xs text-text-secondary">
             <span title="Accuracy rating">{accuracyLabel}</span>
             <span title="Parameters">{model.params}</span>
           </div>
         </div>
         <button
           onClick={() => setPickerOpen(true)}
-          className="ml-3 px-2.5 py-1 text-xs font-medium text-blue-600 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded transition-colors shrink-0"
+          className="ml-3 px-2.5 py-1 text-xs font-medium text-info-text hover:bg-accent-subtle rounded transition-colors shrink-0 cursor-pointer"
         >
           Change
         </button>
@@ -309,7 +298,7 @@ function ModelRow({
         href={model.huggingFaceUrl}
         target="_blank"
         rel="noopener noreferrer"
-        className="inline-block mt-1 text-xs text-blue-500 hover:underline"
+        className="inline-block mt-1 text-xs text-info-text hover:underline"
       >
         Learn more {'\u2197'}
       </a>
@@ -409,18 +398,18 @@ export default function ModelSelector({
             <button
               key={m.key}
               onClick={() => handleModeChange(m.key)}
-              className={`px-4 py-2 rounded-md text-sm font-medium transition-colors ${
+              className={`px-4 py-2 rounded-md text-sm font-medium transition-colors cursor-pointer ${
                 mode === m.key
-                  ? 'bg-blue-600 text-white shadow-sm'
-                  : 'bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700'
+                  ? 'bg-accent text-accentOn shadow-sm'
+                  : 'bg-surface-2 text-text-secondary hover:bg-surface-3 hover:text-text-primary'
               }`}
             >
               {m.icon} {m.label}
             </button>
           ))}
         </div>
-        <p className="mt-2 text-sm text-gray-600 dark:text-gray-400">{preset.userFacingDescription}</p>
-        <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+        <p className="mt-2 text-sm text-text-secondary">{preset.userFacingDescription}</p>
+        <p className="text-xs text-text-tertiary mt-1">
           Estimated speed: {preset.estimatedSpeedPerMinuteAudio}
         </p>
       </div>
@@ -429,12 +418,12 @@ export default function ModelSelector({
       <div>
         <button
           onClick={() => setModelsExpanded(!modelsExpanded)}
-          className="flex items-center gap-2 text-sm font-medium text-gray-700 dark:text-gray-200"
+          className="flex items-center gap-2 text-sm font-medium text-text-primary hover:text-accent transition-colors cursor-pointer"
         >
           {modelsExpanded ? '\u25BC' : '\u25B6'} What models will be used?
         </button>
         {modelsExpanded && (
-          <div className="mt-2 p-4 bg-gray-50 dark:bg-gray-800/50 rounded-lg border border-gray-200 dark:border-gray-700">
+          <div className="mt-2 p-4 bg-surface-2 rounded-lg border border-border">
             <ModelRow
               label="Transcription"
               task="asr"
@@ -462,15 +451,15 @@ export default function ModelSelector({
 
       {/* PER-LANGUAGE NOTICE */}
       {langConfig?.userNotice && (
-        <div className="p-3 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-md text-sm text-blue-800 dark:text-blue-300">
+        <div className="p-3 bg-info-bg border border-info rounded-md text-sm text-info-text">
           {langConfig.userNotice}
         </div>
       )}
 
       {langConfig?.accuracyCaveat && (
-        <div className="p-3 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-md">
-          <p className="text-sm text-amber-800 dark:text-amber-300">{langConfig.accuracyCaveat}</p>
-          <button className="mt-2 text-xs font-medium text-amber-700 dark:text-amber-400 underline hover:no-underline">
+        <div className="p-3 bg-warning-bg border border-warning rounded-md">
+          <p className="text-sm text-warning-text">{langConfig.accuracyCaveat}</p>
+          <button className="mt-2 text-xs font-medium text-warning-text underline hover:no-underline cursor-pointer">
             Contribute to the community glossary {'\u2197'}
           </button>
         </div>
@@ -478,24 +467,24 @@ export default function ModelSelector({
 
       {/* INFERENCE BACKEND NOTICE */}
       {mode === 'accurate' && (
-        <div className="p-3 bg-indigo-50 dark:bg-indigo-900/20 border border-indigo-200 dark:border-indigo-800 rounded-md text-sm text-indigo-800 dark:text-indigo-300">
+        <div className="p-3 bg-accent-subtle border border-accent rounded-md text-sm text-accent">
           In Accurate mode, WhisperX is used {'\u2014'} it adds speaker detection and precise word timing. This takes longer but improves caption quality.
         </div>
       )}
 
       {/* PRIVACY CONFIRMATION */}
-      <div className="p-4 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-md">
-        <p className="text-sm font-medium text-green-800 dark:text-green-300">
+      <div className="p-4 bg-success-bg border border-success rounded-md">
+        <p className="text-sm font-medium text-success-text">
           {'\uD83D\uDD12'} All processing happens on Vernacular&apos;s own servers.
         </p>
-        <p className="text-sm text-green-700 dark:text-green-400 mt-1">
+        <p className="text-sm text-success-text mt-1">
           Your audio and text are never sent to Google, Microsoft, OpenAI, AssemblyAI, Deepgram, or any other external service. Files are discarded after processing.
         </p>
       </div>
 
       {/* ESTIMATED TIME */}
       <div>
-        <p className="text-sm text-gray-600 dark:text-gray-400">
+        <p className="text-sm text-text-secondary">
           Estimated processing time: {estimatedTime}
         </p>
       </div>
@@ -504,12 +493,12 @@ export default function ModelSelector({
       <div>
         <button
           onClick={() => setLicensesExpanded(!licensesExpanded)}
-          className="flex items-center gap-2 text-sm font-medium text-gray-500 dark:text-gray-400"
+          className="flex items-center gap-2 text-sm font-medium text-text-tertiary hover:text-text-secondary transition-colors cursor-pointer"
         >
           {licensesExpanded ? '\u25BC' : '\u25B6'} About model licenses
         </button>
         {licensesExpanded && (
-          <div className="mt-2 p-3 bg-gray-50 dark:bg-gray-800/50 rounded-md text-xs text-gray-600 dark:text-gray-400 space-y-1">
+          <div className="mt-2 p-3 bg-surface-2 rounded-md text-xs text-text-secondary space-y-1">
             <p>{'\u2713'} Open (MIT / Apache 2.0) {'\u2014'} any use, any product</p>
             <p>{'\u26A0\uFE0F'} Non-commercial (CC-BY-NC / CPML) {'\u2014'} cannot be used in paid products. Vernacular is free and non-commercial {'\u2014'} all models listed are permitted.</p>
             <p>{'\u26A0\uFE0F'} Watermarked models {'\u2014'} add invisible tags to audio output. See individual model details for specifics.</p>

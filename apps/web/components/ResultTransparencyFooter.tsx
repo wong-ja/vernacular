@@ -33,27 +33,27 @@ function confidenceInterpretation(score: number | undefined): {
   if (score === undefined || score === null) {
     return {
       label: 'No confidence score',
-      color: 'text-gray-500',
+      color: 'text-text-tertiary',
       message: 'Confidence scoring was not available for this result.',
     };
   }
   if (score >= 0.85) {
     return {
       label: 'High confidence',
-      color: 'text-green-600 dark:text-green-400',
+      color: 'text-success-text',
       message: 'High confidence \u2014 likely accurate.',
     };
   }
   if (score >= 0.7) {
     return {
       label: 'Medium confidence',
-      color: 'text-amber-600 dark:text-amber-400',
+      color: 'text-warning-text',
       message: 'Medium confidence \u2014 review recommended.',
     };
   }
   return {
     label: 'Low confidence',
-    color: 'text-red-600 dark:text-red-400',
+    color: 'text-error-text',
     message: 'Low confidence \u2014 human review strongly recommended.',
   };
 }
@@ -64,16 +64,16 @@ function WatermarkNoticeForResult({ modelId }: { modelId?: string }) {
   if (!model?.watermarked) return null;
 
   return (
-    <div className="p-3 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-md">
-      <p className="text-xs font-medium text-amber-800 dark:text-amber-300">
+    <div className="p-3 bg-warning-bg border border-warning rounded-md">
+      <p className="text-xs font-medium text-warning-text">
         {'\u26A0\uFE0F'} Audio outputs from {model.name} include an imperceptible neural watermark (PerTh by Resemble AI).
       </p>
       {model.watermarkNote && (
         <details className="mt-1">
-          <summary className="text-xs text-amber-700 dark:text-amber-400 cursor-pointer hover:underline">
+          <summary className="text-xs text-warning-text cursor-pointer hover:underline">
             About this watermark
           </summary>
-          <p className="mt-1 text-xs text-amber-700 dark:text-amber-400 whitespace-pre-wrap">
+          <p className="mt-1 text-xs text-warning-text whitespace-pre-wrap">
             {model.watermarkNote}
           </p>
         </details>
@@ -95,10 +95,10 @@ export default function ResultTransparencyFooter({ info }: ResultTransparencyFoo
     info.overallConfidence < 0.7;
 
   return (
-    <div className="mt-6 border-t border-gray-200 dark:border-gray-700 pt-3">
+    <div className="mt-6 border-t border-border pt-3">
       <button
         onClick={() => setExpanded(!expanded)}
-        className="flex items-center gap-2 text-sm font-medium text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 transition-colors"
+        className="flex items-center gap-2 text-sm font-medium text-text-secondary hover:text-text-primary transition-colors cursor-pointer"
       >
         {expanded ? '\u25BC' : '\u25B6'} How this was processed
       </button>
@@ -108,8 +108,8 @@ export default function ResultTransparencyFooter({ info }: ResultTransparencyFoo
           {/* ASR Model */}
           {asrModel && (
             <div className="flex items-center justify-between py-1">
-              <span className="text-gray-600 dark:text-gray-400">Transcription:</span>
-              <span className="text-gray-900 dark:text-gray-100">
+              <span className="text-text-secondary">Transcription:</span>
+              <span className="text-text-primary">
                 {asrModel.name}
                 {info.inferenceBackend && ` (${info.inferenceBackend})`}
                 {' \u2014 '}
@@ -117,7 +117,7 @@ export default function ResultTransparencyFooter({ info }: ResultTransparencyFoo
                   href={asrModel.huggingFaceUrl}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="text-blue-500 hover:underline"
+                  className="text-info-text hover:underline"
                 >
                   HuggingFace {'\u2197'}
                 </a>
@@ -128,15 +128,15 @@ export default function ResultTransparencyFooter({ info }: ResultTransparencyFoo
           {/* Translation Model */}
           {translationModel && (
             <div className="flex items-center justify-between py-1">
-              <span className="text-gray-600 dark:text-gray-400">Translation:</span>
-              <span className="text-gray-900 dark:text-gray-100">
+              <span className="text-text-secondary">Translation:</span>
+              <span className="text-text-primary">
                 {translationModel.name}
                 {' \u2014 '}
                 <a
                   href={translationModel.huggingFaceUrl}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="text-blue-500 hover:underline"
+                  className="text-info-text hover:underline"
                 >
                   HuggingFace {'\u2197'}
                 </a>
@@ -147,15 +147,15 @@ export default function ResultTransparencyFooter({ info }: ResultTransparencyFoo
           {/* TTS Model */}
           {ttsModel && (
             <div className="flex items-center justify-between py-1">
-              <span className="text-gray-600 dark:text-gray-400">Voice output:</span>
-              <span className="text-gray-900 dark:text-gray-100">
+              <span className="text-text-secondary">Voice output:</span>
+              <span className="text-text-primary">
                 {ttsModel.name}
                 {' \u2014 '}
                 <a
                   href={ttsModel.huggingFaceUrl}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="text-blue-500 hover:underline"
+                  className="text-info-text hover:underline"
                 >
                   HuggingFace {'\u2197'}
                 </a>
@@ -165,7 +165,7 @@ export default function ResultTransparencyFooter({ info }: ResultTransparencyFoo
 
           {/* Confidence Score */}
           <div className={`flex items-center justify-between py-1 ${confidence.color}`}>
-            <span className="text-gray-600 dark:text-gray-400">Confidence:</span>
+            <span className="text-text-secondary">Confidence:</span>
             <span className="font-medium">
               {info.overallConfidence !== undefined && info.overallConfidence !== null
                 ? `${Math.round(info.overallConfidence * 100)}% \u2014 ${confidence.message}`
@@ -175,7 +175,7 @@ export default function ResultTransparencyFooter({ info }: ResultTransparencyFoo
 
           {/* Low confidence audio condition note */}
           {isLowConfidence && (
-            <div className="p-3 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-md text-xs text-amber-800 dark:text-amber-300">
+            <div className="p-3 bg-warning-bg border border-warning rounded-md text-xs text-warning-text">
               Low confidence often indicates noisy audio, multiple speakers, or a low-resource language. See audio quality tips.
             </div>
           )}
@@ -184,8 +184,8 @@ export default function ResultTransparencyFooter({ info }: ResultTransparencyFoo
           {info.glossaryOverrideCount !== undefined && info.glossaryOverrideCount > 0 && (
             <div className="py-1">
               <div className="flex items-center justify-between">
-                <span className="text-gray-600 dark:text-gray-400">Glossary overrides applied:</span>
-                <span className="font-medium text-gray-900 dark:text-gray-100">
+                <span className="text-text-secondary">Glossary overrides applied:</span>
+                <span className="font-medium text-text-primary">
                   {info.glossaryOverrideCount} term{info.glossaryOverrideCount !== 1 ? 's' : ''}
                 </span>
               </div>
@@ -194,12 +194,12 @@ export default function ResultTransparencyFooter({ info }: ResultTransparencyFoo
                   {info.glossaryOverrides.map((override, i) => (
                     <div
                       key={i}
-                      className="text-xs text-gray-500 dark:text-gray-400 flex items-center gap-2 bg-gray-50 dark:bg-gray-800/50 rounded px-2 py-1"
+                      className="text-xs text-text-secondary flex items-center gap-2 bg-surface-2 rounded px-2 py-1"
                       title={`Domain: ${override.domain}`}
                     >
-                      <span className="line-through text-gray-400">{override.sourceTerm}</span>
+                      <span className="line-through text-text-tertiary">{override.sourceTerm}</span>
                       <span>{'\u2192'}</span>
-                      <span className="font-medium text-gray-700 dark:text-gray-300">{override.overrideTerm}</span>
+                      <span className="font-medium text-text-primary">{override.overrideTerm}</span>
                     </div>
                   ))}
                 </div>
@@ -213,8 +213,8 @@ export default function ResultTransparencyFooter({ info }: ResultTransparencyFoo
           {/* Processing Time */}
           {info.processingTimeMs !== undefined && (
             <div className="flex items-center justify-between py-1">
-              <span className="text-gray-600 dark:text-gray-400">Processing time:</span>
-              <span className="text-gray-900 dark:text-gray-100 font-mono text-xs">
+              <span className="text-text-secondary">Processing time:</span>
+              <span className="text-text-primary font-mono text-xs">
                 {info.processingTimeMs < 1000
                   ? `${info.processingTimeMs}ms`
                   : `${(info.processingTimeMs / 1000).toFixed(1)}s`}
@@ -223,8 +223,8 @@ export default function ResultTransparencyFooter({ info }: ResultTransparencyFoo
           )}
 
           {/* Report Error */}
-          <div className="pt-2 border-t border-gray-100 dark:border-gray-800">
-            <button className="text-xs text-red-500 hover:text-red-700 dark:hover:text-red-400 underline">
+          <div className="pt-2 border-t border-border-subtle">
+            <button className="text-xs text-error-text hover:underline cursor-pointer">
               Report an error
             </button>
           </div>

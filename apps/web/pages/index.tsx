@@ -59,7 +59,7 @@ export default function HomePage() {
           <a href="/translate">
             <Button size="lg">Translate a document</Button>
           </a>
-          <a href="#">
+          <a href="/orgs/signup">
             <Button variant="secondary" size="lg">Create org account</Button>
           </a>
         </div>
@@ -115,8 +115,8 @@ export default function HomePage() {
           create and maintain their own glossaries. Terminology stays under community control.
         </p>
         <div className="mt-6">
-          <a href="#">
-            <Button variant="secondary">Create an org account \u2014 it&apos;s free</Button>
+          <a href="/orgs/signup">
+            <Button variant="secondary">Create an org account — it&apos;s free</Button>
           </a>
         </div>
       </section>
@@ -137,7 +137,7 @@ export default function HomePage() {
             Built with open-source models. No audio or text is sent to Google, Microsoft, or OpenAI.
           </p>
           <p className="text-xs text-text-tertiary text-center mt-1">
-            Some models used are CC-BY-NC 4.0. Vernacular is non-commercial \u2014 this is permitted.
+            Some models used are CC-BY-NC 4.0. Vernacular is non-commercial — this is permitted.
           </p>
         </div>
       </footer>
