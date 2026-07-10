@@ -8,6 +8,49 @@ import json
 import logging
 import re
 
+# ---------------------------------------------------------------------------
+# Monkey-patches for Gradio 4.44.1 bugs on ZeroGPU
+# ---------------------------------------------------------------------------
+
+import gradio_client.utils as _gc_utils
+
+_orig_json_schema_to_python_type = _gc_utils._json_schema_to_python_type
+
+
+def _patched_json_schema_to_python_type(schema, defs):
+    if isinstance(schema, bool):
+        return "boolean"
+    return _orig_json_schema_to_python_type(schema, defs)
+
+
+_gc_utils._json_schema_to_python_type = _patched_json_schema_to_python_type
+
+_orig_get_type = _gc_utils.get_type
+
+
+def _patched_get_type(schema):
+    if isinstance(schema, bool):
+        return "any"
+    return _orig_get_type(schema)
+
+
+_gc_utils.get_type = _patched_get_type
+
+import gradio.networking as _gr_net
+
+_orig_is_port_open = _gr_net.is_port_open
+
+
+def _patched_is_port_open(host, port):
+    return True
+
+
+_gr_net.is_port_open = _patched_is_port_open
+
+# ---------------------------------------------------------------------------
+# Imports
+# ---------------------------------------------------------------------------
+
 import gradio as gr
 from spaces import GPU
 
@@ -51,8 +94,8 @@ _HALLUCINATION_RE = re.compile(r"(\b\w+\b)(?:\s+\1){2,}", re.IGNORECASE)
 # GPU-accelerated functions
 # ---------------------------------------------------------------------------
 
-_translation_cache: dict = {}
-_whisper_cache: dict = {}
+_translation_cache = {}
+_whisper_cache = {}
 
 
 @GPU
@@ -228,4 +271,4 @@ with gr.Blocks(
 demo.queue()
 
 if __name__ == "__main__":
-    demo.launch(server_name="0.0.0.0", server_port=7860)
+    demo.launch()
