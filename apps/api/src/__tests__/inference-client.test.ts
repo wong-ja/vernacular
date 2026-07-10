@@ -5,20 +5,33 @@ vi.stubGlobal('fetch', mockFetch);
 
 import { callTranslate } from '../services/inference-client.js';
 
+function mockResponse(overrides: Partial<{
+  ok: boolean;
+  status: number;
+  body: string;
+}>): any {
+  const body = overrides.body || '{}';
+  return {
+    ok: overrides.ok ?? true,
+    status: overrides.status ?? 200,
+    text: () => Promise.resolve(body),
+    json: () => Promise.resolve(JSON.parse(body)),
+  };
+}
+
 describe('callTranslate', () => {
   beforeEach(() => {
     vi.clearAllMocks();
   });
 
   it('returns translation response on success', async () => {
-    mockFetch.mockResolvedValue({
-      ok: true,
-      json: () => Promise.resolve({
+    mockFetch.mockResolvedValue(mockResponse({
+      body: JSON.stringify({
         translation: 'Hola mundo',
         model_id: 'nllb-200-3.3B',
         latency_ms: 500,
       }),
-    });
+    }));
 
     const result = await callTranslate({
       text: 'Hello world',
@@ -32,14 +45,13 @@ describe('callTranslate', () => {
   });
 
   it('sends correct request body to inference server', async () => {
-    mockFetch.mockResolvedValue({
-      ok: true,
-      json: () => Promise.resolve({
+    mockFetch.mockResolvedValue(mockResponse({
+      body: JSON.stringify({
         translation: 'Bonjour',
         model_id: 'test',
         latency_ms: 100,
       }),
-    });
+    }));
 
     await callTranslate({
       text: 'Hello',
@@ -65,18 +77,16 @@ describe('callTranslate', () => {
     const oldEnv = process.env.INFERENCE_BASE_URL;
     process.env.INFERENCE_BASE_URL = 'http://custom:8080';
 
-    // Clear module cache so the re-import re-evaluates INFERENCE_BASE_URL
     vi.resetModules();
     const fresh = await import('../services/inference-client.js');
 
-    mockFetch.mockResolvedValue({
-      ok: true,
-      json: () => Promise.resolve({
+    mockFetch.mockResolvedValue(mockResponse({
+      body: JSON.stringify({
         translation: 'Hola',
         model_id: 'test',
         latency_ms: 100,
       }),
-    });
+    }));
 
     await fresh.callTranslate({
       text: 'Hello',
@@ -93,11 +103,11 @@ describe('callTranslate', () => {
   });
 
   it('throws on HTTP error response', async () => {
-    mockFetch.mockResolvedValue({
+    mockFetch.mockResolvedValue(mockResponse({
       ok: false,
       status: 502,
-      json: () => Promise.resolve({ error: 'Model not loaded' }),
-    });
+      body: JSON.stringify({ error: 'Model not loaded' }),
+    }));
 
     await expect(callTranslate({
       text: 'Hello',
