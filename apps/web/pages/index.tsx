@@ -1,214 +1,146 @@
-import { useState } from 'react';
-import type { TranslationResult, ModelMode, ModelOverrides } from '@vernacular/shared';
-import { REGIONS, getLanguagesByRegion } from '@vernacular/shared';
-import ModelSelector from '../components/ModelSelector';
-import ResultTransparencyFooter from '../components/ResultTransparencyFooter';
+import Button from '../components/ui/Button';
 
-const DOMAIN_OPTIONS = [
-  { value: 'general', label: 'General' },
-  { value: 'medical', label: 'Medical' },
-  { value: 'legal', label: 'Legal' },
-  { value: 'education', label: 'Education' },
-  { value: 'civic', label: 'Civic' },
+const languages = [
+  'Tagalog', '\u5EE3\u6771\u8A71', 'Hmong', 'Espa\u00F1ol',
+  '\u666E\u901A\u8BDD', 'Krey\u00F2l', '\u0627\u0644\u0639\u0631\u0628\u064A\u0629',
+  '\u65E5\u672C\u8A9E', 'Ti\u1EBFng Vi\u1EC7t', '\u17C1\u17C1\u1798\u17D2\u179C\u17C0\u179B',
+  'Haitian Creole', '\uD55C\uAD6D\uC5B4',
 ];
 
-export default function TranslatePage() {
-  const [text, setText] = useState('');
-  const [sourceLang, setSourceLang] = useState('eng_Latn');
-  const [targetLang, setTargetLang] = useState('spa_Latn');
-  const [domain, setDomain] = useState('general');
-  const [mode, setMode] = useState<ModelMode>('balanced');
-  const [modelOverrides, setModelOverrides] = useState<ModelOverrides>({});
-  const [result, setResult] = useState<TranslationResult | null>(null);
-  const [error, setError] = useState('');
-  const [loading, setLoading] = useState(false);
+const steps = [
+  {
+    icon: '\u2191',
+    title: 'Upload or paste',
+    desc: 'Text, audio, or video. Common formats accepted.',
+  },
+  {
+    icon: '\u2696\uFE0F',
+    title: 'Community glossary applied',
+    desc: 'Terminology approved by speakers of your language.',
+  },
+  {
+    icon: '\u2193',
+    title: 'Review and download',
+    desc: 'Transcript, translation, and captions in seconds to minutes.',
+  },
+];
 
-  async function handleTranslate() {
-    if (!text.trim()) return;
-    setLoading(true);
-    setError('');
-    setResult(null);
+const whys = [
+  {
+    title: 'Privacy by design',
+    desc: 'Your audio never leaves our servers. We use open-source models, not Google or OpenAI.',
+  },
+  {
+    title: 'Community-governed',
+    desc: 'Language specialists and community organizations maintain the terminology, not engineers.',
+  },
+  {
+    title: 'Honest about limits',
+    desc: 'We show you which model processed your content, how confident it was, and where to get human review.',
+  },
+];
 
-    try {
-      const res = await fetch('/api/translate', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ text, sourceLang, targetLang, domain, mode, modelOverrides }),
-      });
-      const json = await res.json();
-      if (json.status === 'ok') {
-        setResult(json.data);
-      } else {
-        setError(json.message || 'Translation failed');
-      }
-    } catch (e) {
-      setError(e instanceof Error ? e.message : 'Network error');
-    } finally {
-      setLoading(false);
-    }
-  }
-
-  function flipLanguages() {
-    setSourceLang(targetLang);
-    setTargetLang(sourceLang);
-  }
-
+export default function HomePage() {
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-950 text-gray-900 dark:text-gray-100">
-      <header className="border-b border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900">
-        <div className="max-w-4xl mx-auto px-4 py-4 flex items-center justify-between">
-          <h1 className="text-xl font-bold">Vernacular</h1>
-          <nav className="flex gap-4 text-sm">
-            <a href="/" className="font-medium text-blue-600 dark:text-blue-400">Translate</a>
-            <a href="/transcribe" className="text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100">Transcribe</a>
-          </nav>
+    <div>
+      {/* Hero */}
+      <section className="max-w-container mx-auto px-6 pt-20 pb-16 text-center">
+        <p className="text-sm text-text-secondary uppercase tracking-widest mb-4">
+          Free &middot; Open source &middot; Community-governed
+        </p>
+        <h1 className="text-4xl lg:text-4xl font-bold text-text-primary max-w-3xl mx-auto leading-tight">
+          Every voice, understood.
+        </h1>
+        <p className="text-lg text-text-secondary max-w-[600px] mx-auto mt-4 leading-relaxed">
+          Vernacular translates and transcribes community content using open-source models.
+          No data sent to Google or OpenAI. Free for everyone.
+        </p>
+        <div className="flex items-center justify-center gap-4 mt-8">
+          <a href="/translate">
+            <Button size="lg">Translate a document</Button>
+          </a>
+          <a href="#">
+            <Button variant="secondary" size="lg">Create org account</Button>
+          </a>
         </div>
-      </header>
+        <p className="text-sm text-text-tertiary mt-4">No account required for basic use.</p>
+      </section>
 
-      <main className="max-w-4xl mx-auto px-4 py-8 space-y-6">
-        {/* Language Selectors */}
-        <div className="flex items-end gap-3">
-          <div className="flex-1">
-            <label className="block text-sm font-medium mb-1">From</label>
-            <select
-              value={sourceLang}
-              onChange={(e) => setSourceLang(e.target.value)}
-              className="w-full rounded-md border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 px-3 py-2 text-sm"
-            >
-              {REGIONS.map((region) => (
-                <optgroup key={region} label={region}>
-                  {getLanguagesByRegion(region).map((l) => (
-                    <option key={l.code} value={l.code}>{l.name}</option>
-                  ))}
-                </optgroup>
-              ))}
-            </select>
-          </div>
-          <button
-            onClick={flipLanguages}
-            className="mb-0.5 px-3 py-2 rounded-md bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 text-lg"
-            title="Swap languages"
-          >
-            &#8596;
-          </button>
-          <div className="flex-1">
-            <label className="block text-sm font-medium mb-1">To</label>
-            <select
-              value={targetLang}
-              onChange={(e) => setTargetLang(e.target.value)}
-              className="w-full rounded-md border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 px-3 py-2 text-sm"
-            >
-              {REGIONS.map((region) => (
-                <optgroup key={region} label={region}>
-                  {getLanguagesByRegion(region).map((l) => (
-                    <option key={l.code} value={l.code}>{l.name}</option>
-                  ))}
-                </optgroup>
-              ))}
-            </select>
-          </div>
+      {/* Language coverage bar */}
+      <section className="border-y border-border overflow-hidden py-4">
+        <p className="text-xs text-text-secondary uppercase tracking-wider text-center mb-3">
+          Supporting 12 language pairs in Phase 1, growing with community contributions
+        </p>
+        <div className="flex gap-8 overflow-x-auto px-6 scrollbar-hide">
+          {languages.concat(languages).map((lang, i) => (
+            <span key={i} className="text-sm text-text-secondary whitespace-nowrap shrink-0">
+              {lang}
+            </span>
+          ))}
         </div>
+      </section>
 
-        {/* Domain */}
-        <div>
-          <label className="block text-sm font-medium mb-1">Domain</label>
-          <select
-            value={domain}
-            onChange={(e) => setDomain(e.target.value)}
-            className="rounded-md border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 px-3 py-2 text-sm"
-          >
-            {DOMAIN_OPTIONS.map((d) => (
-              <option key={d.value} value={d.value}>{d.label}</option>
-            ))}
-          </select>
-        </div>
-
-        {/* Model Selector */}
-        <ModelSelector
-          sourceLang={sourceLang}
-          targetLang={targetLang}
-          charCount={text.length}
-          onModeChange={(m) => setMode(m)}
-          onModelOverride={(o) => setModelOverrides(o)}
-        />
-
-        {/* Text Input */}
-        <div>
-          <label className="block text-sm font-medium mb-1">Text to translate</label>
-          <textarea
-            value={text}
-            onChange={(e) => setText(e.target.value)}
-            rows={5}
-            className="w-full rounded-md border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 px-3 py-2 text-sm resize-y"
-            placeholder="Enter text to translate..."
-          />
-        </div>
-
-        {/* Translate Button */}
-        <button
-          onClick={handleTranslate}
-          disabled={loading || !text.trim()}
-          className="w-full py-3 rounded-md bg-blue-600 text-white font-medium hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-        >
-          {loading ? 'Translating...' : 'Translate'}
-        </button>
-
-        {/* Error */}
-        {error && (
-          <div className="p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-md text-sm text-red-700 dark:text-red-300">
-            {error}
-          </div>
-        )}
-
-        {/* Result */}
-        {result && (
-          <div className="space-y-4">
-            <div className="p-4 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-md">
-              <div className="flex items-center justify-between mb-2">
-                <h2 className="text-sm font-medium text-gray-500 dark:text-gray-400">Translation</h2>
-                {result.needsReview && (
-                  <span className="text-xs bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-300 px-2 py-0.5 rounded">
-                    Needs review
-                  </span>
-                )}
-              </div>
-              <p className="text-base whitespace-pre-wrap">{result.translation}</p>
+      {/* How it works */}
+      <section className="max-w-container mx-auto px-6 py-16">
+        <h2 className="text-xl font-bold text-text-primary text-center mb-10">How it works</h2>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+          {steps.map((step, i) => (
+            <div key={i} className="bg-surface-1 border border-border rounded-xl p-6 text-center">
+              <span className="text-2xl text-accent">{step.icon}</span>
+              <h3 className="text-lg font-semibold text-text-primary mt-4">{step.title}</h3>
+              <p className="text-sm text-text-secondary mt-2">{step.desc}</p>
             </div>
+          ))}
+        </div>
+      </section>
 
-            {/* Glossary Overrides */}
-            {result.glossaryOverrides.length > 0 && (
-              <div className="p-4 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-md">
-                <h3 className="text-sm font-medium mb-2">Glossary Overrides Applied</h3>
-                <div className="space-y-1">
-                  {result.glossaryOverrides.map((o, i) => (
-                    <div key={i} className="text-xs text-gray-600 dark:text-gray-400 flex items-center gap-2 bg-gray-50 dark:bg-gray-800/50 rounded px-2 py-1">
-                      <span className="line-through text-gray-400">{o.baseModelTerm}</span>
-                      <span>{'\u2192'}</span>
-                      <span className="font-medium text-gray-700 dark:text-gray-300">{o.overrideTerm}</span>
-                      <span className="text-gray-400 ml-auto">({o.domain})</span>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
+      {/* Why Vernacular */}
+      <section className="max-w-container mx-auto px-6 py-16">
+        <h2 className="text-xl font-bold text-text-primary text-center mb-10">Why Vernacular</h2>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          {whys.map((item, i) => (
+            <div key={i} className="bg-surface-1 border border-border rounded-xl p-6">
+              <h3 className="text-lg font-semibold text-text-primary">{item.title}</h3>
+              <p className="text-sm text-text-secondary mt-2 leading-relaxed">{item.desc}</p>
+            </div>
+          ))}
+        </div>
+      </section>
 
-            {/* Transparency Footer */}
-            <ResultTransparencyFooter
-              info={{
-                translationModelId: result.translationModelId || result.modelUsed,
-                overallConfidence: result.confidence ?? undefined,
-                glossaryOverrideCount: result.glossaryOverrides.length,
-                glossaryOverrides: result.glossaryOverrides.map((o) => ({
-                  sourceTerm: o.sourceTerm,
-                  overrideTerm: o.overrideTerm,
-                  domain: o.domain,
-                })),
-                processingTimeMs: result.processingTimeMs,
-              }}
-            />
+      {/* Community */}
+      <section className="max-w-container mx-auto px-6 py-16 text-center border-t border-border">
+        <h2 className="text-xl font-bold text-text-primary">Built with communities, not just for them.</h2>
+        <p className="text-sm text-text-secondary mt-3 max-w-lg mx-auto">
+          Community health clinics, school districts, legal aid organizations, and civic nonprofits
+          create and maintain their own glossaries. Terminology stays under community control.
+        </p>
+        <div className="mt-6">
+          <a href="#">
+            <Button variant="secondary">Create an org account \u2014 it&apos;s free</Button>
+          </a>
+        </div>
+      </section>
+
+      {/* Footer */}
+      <footer className="border-t border-border py-10">
+        <div className="max-w-container mx-auto px-6">
+          <div className="flex flex-col md:flex-row items-center justify-between gap-4">
+            <span className="text-sm font-semibold text-text-primary">Vernacular</span>
+            <nav className="flex gap-6 text-xs text-text-secondary">
+              <a href="#" className="hover:text-text-primary transition-colors">Privacy</a>
+              <a href="#" className="hover:text-text-primary transition-colors">Governance</a>
+              <a href="#" className="hover:text-text-primary transition-colors">GitHub</a>
+              <a href="#" className="hover:text-text-primary transition-colors">Assembly Code</a>
+            </nav>
           </div>
-        )}
-      </main>
+          <p className="text-xs text-text-tertiary text-center mt-6">
+            Built with open-source models. No audio or text is sent to Google, Microsoft, or OpenAI.
+          </p>
+          <p className="text-xs text-text-tertiary text-center mt-1">
+            Some models used are CC-BY-NC 4.0. Vernacular is non-commercial \u2014 this is permitted.
+          </p>
+        </div>
+      </footer>
     </div>
   );
 }

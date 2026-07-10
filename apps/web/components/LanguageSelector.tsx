@@ -8,6 +8,10 @@ interface LanguageSelectorProps {
   includeAuto?: boolean;
 }
 
+const allLanguages = REGIONS.flatMap((region) =>
+  getLanguagesByRegion(region).map((l) => ({ ...l, region }))
+);
+
 export default function LanguageSelector({ value, onChange, label, includeAuto }: LanguageSelectorProps) {
   const [open, setOpen] = useState(false);
   const [search, setSearch] = useState('');
@@ -23,9 +27,7 @@ export default function LanguageSelector({ value, onChange, label, includeAuto }
     return () => document.removeEventListener('mousedown', handler);
   }, []);
 
-  const selected = !includeAuto || value ? getLanguagesByRegion('').find((l) => l.code === value) : null;
-
-  const allLanguages = REGIONS.flatMap((region) => getLanguagesByRegion(region).map((l) => ({ ...l, region })));
+  const selected = value ? allLanguages.find((l) => l.code === value) : null;
 
   const filtered = search
     ? allLanguages.filter(
