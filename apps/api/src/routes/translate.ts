@@ -4,7 +4,7 @@ import { runTranslation } from '../services/translation-pipeline.js';
 
 export async function translateRoutes(app: FastifyInstance) {
   app.post<{ Body: TranslationRequest }>('/api/translate', async (request, reply) => {
-    const { text, sourceLang, targetLang, orgId, domain } = request.body;
+    const { text, sourceLang, targetLang, orgId, domain, mode, modelOverrides } = request.body;
 
     if (!text || typeof text !== 'string' || text.length === 0) {
       return reply.status(400).send({ status: 'error', message: 'text is required' });
@@ -20,6 +20,8 @@ export async function translateRoutes(app: FastifyInstance) {
         targetLang,
         orgId,
         domain: domain || 'general',
+        mode,
+        modelOverrides,
       });
 
       return reply.send({ status: 'ok', data: result });

@@ -1,6 +1,8 @@
 import { useState } from 'react';
-import type { TranslationResult } from '@vernacular/shared';
+import type { TranslationResult, ModelMode, ModelOverrides } from '@vernacular/shared';
 import { LANGUAGES, REGIONS, getLanguagesByRegion } from '@vernacular/shared';
+import ModelSelector from '../components/ModelSelector';
+import ResultTransparencyFooter from '../components/ResultTransparencyFooter';
 
 const DOMAIN_OPTIONS = [
   { value: 'general', label: 'General' },
@@ -15,6 +17,8 @@ export default function TranslatePage() {
   const [sourceLang, setSourceLang] = useState('eng_Latn');
   const [targetLang, setTargetLang] = useState('spa_Latn');
   const [domain, setDomain] = useState('general');
+  const [mode, setMode] = useState<ModelMode>('balanced');
+  const [modelOverrides, setModelOverrides] = useState<ModelOverrides>({});
   const [result, setResult] = useState<TranslationResult | null>(null);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
@@ -29,7 +33,7 @@ export default function TranslatePage() {
       const res = await fetch('/api/translate', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ text, sourceLang, targetLang, domain }),
+        body: JSON.stringify({ text, sourceLang, targetLang, domain, mode, modelOverrides }),
       });
       const json = await res.json();
       if (json.status === 'ok') {
@@ -119,6 +123,15 @@ export default function TranslatePage() {
           </select>
         </div>
 
+        {/* Model Selector */}
+        <ModelSelector
+          sourceLang={sourceLang}
+          targetLang={targetLang}
+          charCount={text.length}
+          onModeChange={(m) => setMode(m)}
+          onModelOverride={(o) => setModelOverrides(o)}
+        />
+
         {/* Text Input */}
         <div>
           <label className="block text-sm font-medium mb-1">Text to translate</label>
@@ -179,11 +192,20 @@ export default function TranslatePage() {
               </div>
             )}
 
-            {result.processingTimeMs !== undefined && (
-              <p className="text-xs text-gray-400">
-                Processed in {(result.processingTimeMs / 1000).toFixed(1)}s using {result.modelUsed}
-              </p>
-            )}
+            {/* Transparency Footer */}
+            <ResultTransparencyFooter
+              info={{
+                translationModelId: result.translationModelId || result.modelUsed,
+                overallConfidence: result.confidence ?? undefined,
+                glossaryOverrideCount: result.glossaryOverrides.length,
+                glossaryOverrides: result.glossaryOverrides.map((o) => ({
+                  sourceTerm: o.sourceTerm,
+                  overrideTerm: o.overrideTerm,
+                  domain: o.domain,
+                })),
+                processingTimeMs: result.processingTimeMs,
+              }}
+            />
           </div>
         )}
       </main>

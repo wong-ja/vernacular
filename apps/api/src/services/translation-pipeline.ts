@@ -1,26 +1,50 @@
 import { applyGlossaryOverrides } from '@vernacular/glossary';
-import type { TranslationRequest, TranslationResult, GlossaryTerm } from '@vernacular/shared';
+import type { TranslationRequest, TranslationResult, GlossaryTerm, ModelMode, ModelOverrides } from '@vernacular/shared';
+import { MODE_PRESETS, LANGUAGE_CONFIGS } from '@vernacular/shared';
 import { callTranslate } from './inference-client.js';
 
 const LOW_CONFIDENCE_THRESHOLD = 0.7;
 
-/** Temporary in-memory glossary store. Replace with DB queries in Phase 1.6. */
-function getOrgGlossary(orgId: string, sourceLang: string, targetLang: string, domain: string): GlossaryTerm[] {
-  return [];
+function getLanguageConfig(code: string) {
+  return LANGUAGE_CONFIGS.find((c) => c.code === code);
+}
+
+function resolveModels(
+  sourceLang: string,
+  targetLang: string,
+  mode?: ModelMode,
+  overrides?: ModelOverrides,
+): { translationModelId: string; asrModelId: string } {
+  const resolvedMode: ModelMode = mode || 'balanced';
+  const langConfig = getLanguageConfig(targetLang) || getLanguageConfig(sourceLang);
+  const preset = MODE_PRESETS[resolvedMode];
+
+  const translationModelId =
+    overrides?.translationModelId ||
+    langConfig?.defaultTranslationModelId ||
+    preset.translationModelId;
+
+  const asrModelId =
+    overrides?.asrModelId ||
+    langConfig?.defaultAsrModelId ||
+    preset.asrModelId;
+
+  return { translationModelId, asrModelId };
 }
 
 export async function runTranslation(req: TranslationRequest): Promise<TranslationResult> {
   const domain = req.domain || 'general';
   const startTime = Date.now();
 
-  // 1. Call inference sidecar
+  const { translationModelId } = resolveModels(req.sourceLang, req.targetLang, req.mode, req.modelOverrides);
+
   const sidecarResult = await callTranslate({
     text: req.text,
     sourceLang: req.sourceLang,
     targetLang: req.targetLang,
+    modelId: translationModelId,
   });
 
-  // 2. Apply glossary overrides
   let glossaryOverrides: GlossaryTerm[] = [];
   if (req.orgId) {
     glossaryOverrides = getOrgGlossary(req.orgId, req.sourceLang, req.targetLang, domain);
@@ -49,7 +73,6 @@ export async function runTranslation(req: TranslationRequest): Promise<Translati
   );
 
   const needsReview = overrideResult.overrides.length > 0 || (sidecarResult.processingTimeMs ?? 0) > 10000;
-
   const processingTimeMs = Date.now() - startTime;
 
   return {
@@ -66,6 +89,12 @@ export async function runTranslation(req: TranslationRequest): Promise<Translati
     confidence: null,
     needsReview,
     modelUsed: sidecarResult.modelUsed,
+    translationModelId,
+    mode: req.mode || 'balanced',
     processingTimeMs,
   };
+}
+
+function getOrgGlossary(_orgId: string, _sourceLang: string, _targetLang: string, _domain: string): GlossaryTerm[] {
+  return [];
 }

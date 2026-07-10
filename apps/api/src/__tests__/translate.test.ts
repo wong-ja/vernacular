@@ -87,6 +87,7 @@ describe('translation pipeline', () => {
       text: 'Good morning',
       sourceLang: 'eng_Latn',
       targetLang: 'spa_Latn',
+      modelId: 'nllb-200-600m',
     });
   });
 

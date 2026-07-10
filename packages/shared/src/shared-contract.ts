@@ -12,7 +12,15 @@ export type SupportedLanguage = string;
 // TRANSLATION PIPELINE
 // ─────────────────────────────────────────────
 
+import type { ModelMode } from './model-registry.js';
+
 export type TranslationDomain = 'medical' | 'legal' | 'education' | 'civic' | 'general';
+
+export interface ModelOverrides {
+  asrModelId?: string;
+  translationModelId?: string;
+  ttsModelId?: string;
+}
 
 export interface TranslationRequest {
   text: string;
@@ -20,6 +28,8 @@ export interface TranslationRequest {
   targetLang: SupportedLanguage;
   orgId?: string;
   domain?: TranslationDomain;
+  mode?: ModelMode;
+  modelOverrides?: ModelOverrides;
 }
 
 export interface TranslationResult {
@@ -30,6 +40,9 @@ export interface TranslationResult {
   confidence: number | null;
   needsReview: boolean;
   modelUsed: string;
+  translationModelId?: string;
+  asrModelId?: string;
+  mode?: string;
   reverseTranslation?: string;
   processingTimeMs?: number;
 }
@@ -53,6 +66,9 @@ export interface FileTranslationResult {
   captionsVttUrl: string;
   glossaryOverrides: GlossaryOverride[];
   modelUsed: string;
+  asrModelId?: string;
+  translationModelId?: string;
+  mode?: string;
   processingTimeMs?: number;
 }
 
@@ -179,6 +195,7 @@ export interface InteractionLog {
 export interface TranscribeRequest {
   audioBase64: string;
   sourceLang?: SupportedLanguage;
+  modelId?: string;
 }
 
 export interface TranscribeResponse {
@@ -193,6 +210,7 @@ export interface TranslateRequest {
   text: string;
   sourceLang: SupportedLanguage;
   targetLang: SupportedLanguage;
+  modelId?: string;
 }
 
 export interface TranslateResponse {
