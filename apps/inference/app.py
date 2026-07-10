@@ -36,17 +36,6 @@ def _patched_get_type(schema):
 
 _gc_utils.get_type = _patched_get_type
 
-import gradio.networking as _gr_net
-
-_orig_is_port_open = _gr_net.is_port_open
-
-
-def _patched_is_port_open(host, port):
-    return True
-
-
-_gr_net.is_port_open = _patched_is_port_open
-
 # ---------------------------------------------------------------------------
 # Imports
 # ---------------------------------------------------------------------------
@@ -271,4 +260,4 @@ with gr.Blocks(
 demo.queue()
 
 if __name__ == "__main__":
-    demo.launch()
+    demo.launch(share=True)
