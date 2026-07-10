@@ -2,10 +2,24 @@ import { randomUUID } from 'node:crypto';
 import { createWriteStream } from 'node:fs';
 import { mkdir, unlink, writeFile } from 'node:fs/promises';
 import { pipeline } from 'node:stream/promises';
-import { spawn } from 'node:child_process';
+import { spawn, execSync } from 'node:child_process';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import type { Readable } from 'node:stream';
+
+let _hasFfmpeg: boolean | null = null;
+
+export function hasFFmpeg(): boolean {
+  if (_hasFfmpeg === null) {
+    try {
+      execSync('ffmpeg -version', { stdio: 'ignore' });
+      _hasFfmpeg = true;
+    } catch {
+      _hasFfmpeg = false;
+    }
+  }
+  return _hasFfmpeg;
+}
 
 export type MediaType = 'audio' | 'video' | 'image' | 'pdf' | 'unsupported';
 
@@ -57,6 +71,9 @@ export async function saveUpload(stream: Readable, filename: string, mimeType: s
   }
 
   if (mediaType === 'video') {
+    if (!hasFFmpeg()) {
+      throw new Error('Video files require FFmpeg (not available on this server). Upload audio directly instead.');
+    }
     const audioPath = join(TEMP_DIR, `${id}-audio.wav`);
     await extractAudio(originalPath, audioPath);
     tempPaths.push(audioPath);
