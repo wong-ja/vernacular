@@ -56,7 +56,7 @@ _whisper_cache: dict = {}
 
 
 @GPU
-def translate(text: str, source_lang: str, target_lang: str) -> tuple:
+def translate(text, source_lang, target_lang):
     """Translate text from source_lang to target_lang using NLLB-200."""
     global _translation_cache
 
@@ -105,7 +105,7 @@ def translate(text: str, source_lang: str, target_lang: str) -> tuple:
 
 
 @GPU
-def transcribe(audio_path: str, source_lang: str) -> tuple:
+def transcribe(audio_path, source_lang):
     """Transcribe audio file using faster-whisper."""
     global _whisper_cache
 
