@@ -1,0 +1,8 @@
+{
+  "name": "@vernacular/shared",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "main": "src/shared-contract.ts",
+  "types": "src/shared-contract.ts"
+}

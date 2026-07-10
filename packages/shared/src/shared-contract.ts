@@ -106,6 +106,7 @@ export interface GlossaryTerm {
   approvedBy: string;
   approvedAt: string;
   usageCount: number;
+  isActive: boolean;
 }
 
 export interface GlossaryOverride {
