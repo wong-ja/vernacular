@@ -53,4 +53,4 @@ jobs:
           node-version: 22
           cache: npm
       - run: npm ci
-      - run: npm run test --workspace=apps/api
+      - run: npx vitest run apps/api/src/__tests__/

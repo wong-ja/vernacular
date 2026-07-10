@@ -1,5 +1,5 @@
-import { applyGlossaryOverrides } from '@vernacular/glossary/src/index.js';
-import type { TranslationRequest, TranslationResult, GlossaryTerm } from '@vernacular/shared/src/shared-contract.js';
+import { applyGlossaryOverrides } from '@vernacular/glossary';
+import type { TranslationRequest, TranslationResult, GlossaryTerm } from '@vernacular/shared';
 import { callTranslate } from './inference-client.js';
 
 const LOW_CONFIDENCE_THRESHOLD = 0.7;

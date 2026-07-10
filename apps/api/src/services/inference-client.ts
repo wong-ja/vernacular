@@ -1,4 +1,4 @@
-import type { TranslateRequest, TranslateResponse } from '@vernacular/shared/src/shared-contract.js';
+import type { TranslateRequest, TranslateResponse } from '@vernacular/shared';
 
 const INFERENCE_BASE_URL = process.env.INFERENCE_BASE_URL || 'http://localhost:8000';
 

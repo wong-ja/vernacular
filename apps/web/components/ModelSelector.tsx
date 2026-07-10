@@ -7,7 +7,7 @@ import {
   type ModelMode,
   type ModelTask,
   type LanguageConfig,
-} from 'packages/shared/src/model-registry';
+} from '@vernacular/shared';
 
 interface ModelSelectorProps {
   sourceLang?: string;

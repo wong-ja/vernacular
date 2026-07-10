@@ -1,5 +1,5 @@
 import type { FastifyInstance } from 'fastify';
-import type { TranslationRequest } from '@vernacular/shared/src/shared-contract.js';
+import type { TranslationRequest } from '@vernacular/shared';
 import { runTranslation } from '../services/translation-pipeline.js';
 
 export async function translateRoutes(app: FastifyInstance) {

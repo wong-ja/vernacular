@@ -1,5 +1,5 @@
 import type { FastifyInstance } from 'fastify';
-import type { SupportedLanguage } from '@vernacular/shared/src/shared-contract.js';
+import type { SupportedLanguage } from '@vernacular/shared';
 import { listOrgs, getOrg, getOrgBySlug, createOrg, updateOrg } from '../services/org-store.js';
 
 export async function orgRoutes(app: FastifyInstance) {

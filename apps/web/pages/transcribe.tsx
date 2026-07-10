@@ -1,5 +1,5 @@
 import { useState, useRef } from 'react';
-import type { FileTranslationResult } from 'packages/shared/src/shared-contract';
+import type { FileTranslationResult } from '@vernacular/shared';
 
 const LANGUAGE_OPTIONS = [
   { code: 'eng_Latn', label: 'English' },

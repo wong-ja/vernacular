@@ -1,0 +1,14 @@
+services:
+  - type: web
+    name: vernacular-api
+    env: docker
+    dockerfilePath: apps/api/Dockerfile
+    envVars:
+      - key: DATABASE_URL
+        sync: false
+      - key: INFERENCE_BASE_URL
+        value: http://localhost:8000
+      - key: PORT
+        value: "3001"
+      - key: NODE_ENV
+        value: production

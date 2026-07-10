@@ -1,5 +1,5 @@
 import type { FastifyInstance } from 'fastify';
-import type { SupportedLanguage } from '@vernacular/shared/src/shared-contract.js';
+import type { SupportedLanguage } from '@vernacular/shared';
 import { listTerms, createTerm, updateTerm, deleteTerm, listSuggestions, createSuggestion, reviewSuggestion } from '../services/org-store.js';
 
 interface CreateTermBody {

@@ -1,5 +1,5 @@
 import postgres from 'postgres';
-import type { Organization, GlossaryTerm, GlossarySuggestion, SupportedLanguage } from '@vernacular/shared/src/shared-contract.js';
+import type { Organization, GlossaryTerm, GlossarySuggestion, SupportedLanguage } from '@vernacular/shared';
 
 const DATABASE_URL = process.env.DATABASE_URL;
 if (!DATABASE_URL) {

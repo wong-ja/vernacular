@@ -1,6 +1,6 @@
 import { useState } from 'react';
-import { MODEL_REGISTRY, type ModelEntry } from 'packages/shared/src/model-registry';
-import type { InferenceBackend } from 'packages/shared/src/model-registry';
+import { MODEL_REGISTRY, type ModelEntry } from '@vernacular/shared';
+import type { InferenceBackend } from '@vernacular/shared';
 
 interface ProcessedModelInfo {
   asrModelId?: string;

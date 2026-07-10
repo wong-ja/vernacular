@@ -16,8 +16,6 @@
     "rootDir": ".",
     "baseUrl": ".",
     "paths": {
-      "@vernacular/shared/*": ["./packages/shared/src/*"],
-      "@vernacular/glossary": ["./packages/glossary/src/index.ts"],
       "@vernacular/api/*": ["./apps/api/src/*"]
     }
   },

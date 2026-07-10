@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import type { TranslationResult } from 'packages/shared/src/shared-contract';
+import type { TranslationResult } from '@vernacular/shared';
 
 const LANGUAGE_OPTIONS = [
   { code: 'eng_Latn', label: 'English' },

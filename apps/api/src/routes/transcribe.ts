@@ -1,5 +1,5 @@
 import type { FastifyInstance } from 'fastify';
-import type { FileTranslationResult, TranscriptionSegment } from '@vernacular/shared/src/shared-contract.js';
+import type { FileTranslationResult, TranscriptionSegment } from '@vernacular/shared';
 import { saveUpload, cleanupTempFiles } from '../services/file-processor.js';
 import { generateSrt, generateVtt } from '../services/caption-generator.js';
 
