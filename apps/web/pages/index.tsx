@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import type { TranslationResult, ModelMode, ModelOverrides } from '@vernacular/shared';
-import { LANGUAGES, REGIONS, getLanguagesByRegion } from '@vernacular/shared';
+import { REGIONS, getLanguagesByRegion } from '@vernacular/shared';
 import ModelSelector from '../components/ModelSelector';
 import ResultTransparencyFooter from '../components/ResultTransparencyFooter';
 

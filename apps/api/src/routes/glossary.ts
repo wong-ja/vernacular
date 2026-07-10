@@ -1,5 +1,4 @@
 import type { FastifyInstance } from 'fastify';
-import type { SupportedLanguage } from '@vernacular/shared';
 import { listTerms, createTerm, updateTerm, deleteTerm, listSuggestions, createSuggestion, reviewSuggestion } from '../services/org-store.js';
 
 interface CreateTermBody {
@@ -55,8 +54,8 @@ export async function glossaryRoutes(app: FastifyInstance) {
     }
     const term = await createTerm({
       orgId: request.params.orgId,
-      sourceLang: sourceLang as SupportedLanguage,
-      targetLang: targetLang as SupportedLanguage,
+      sourceLang,
+      targetLang,
       domain: domain || 'general',
       sourceTerm,
       targetTerm,
@@ -70,8 +69,8 @@ export async function glossaryRoutes(app: FastifyInstance) {
 
   app.patch<{ Params: { orgId: string; termId: string }; Body: PatchTermBody }>('/api/orgs/:orgId/terms/:termId', async (request, reply) => {
     const body: Record<string, unknown> = {};
-    if (request.body.sourceLang !== undefined) body.sourceLang = request.body.sourceLang as SupportedLanguage;
-    if (request.body.targetLang !== undefined) body.targetLang = request.body.targetLang as SupportedLanguage;
+    if (request.body.sourceLang !== undefined) body.sourceLang = request.body.sourceLang;
+    if (request.body.targetLang !== undefined) body.targetLang = request.body.targetLang;
     if (request.body.domain !== undefined) body.domain = request.body.domain;
     if (request.body.sourceTerm !== undefined) body.sourceTerm = request.body.sourceTerm;
     if (request.body.targetTerm !== undefined) body.targetTerm = request.body.targetTerm;
@@ -104,8 +103,8 @@ export async function glossaryRoutes(app: FastifyInstance) {
     const suggestion = await createSuggestion({
       orgId: request.params.orgId,
       suggestedBy: suggestedBy || 'anonymous',
-      sourceLang: sourceLang as SupportedLanguage,
-      targetLang: targetLang as SupportedLanguage,
+      sourceLang,
+      targetLang,
       domain: domain || 'general',
       sourceTerm,
       suggestedTerm,

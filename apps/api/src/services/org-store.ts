@@ -1,16 +1,5 @@
-import postgres from 'postgres';
-import type { Organization, GlossaryTerm, GlossarySuggestion, SupportedLanguage } from '@vernacular/shared';
-
-const DATABASE_URL = process.env.DATABASE_URL;
-if (!DATABASE_URL) {
-  throw new Error('DATABASE_URL is required');
-}
-
-const sql = postgres(DATABASE_URL, {
-  max: 5,
-  idle_timeout: 30,
-  connect_timeout: 10,
-});
+import type { Organization, GlossaryTerm, GlossarySuggestion } from '@vernacular/shared';
+import { sql } from './db.js';
 
 // ---------------------------------------------------------------------------
 // Organizations
@@ -52,10 +41,11 @@ export async function updateOrg(id: string, data: Partial<Organization>): Promis
     visibility: 'visibility',
   };
 
+  const d = data as Record<string, unknown>;
   for (const [key, col] of Object.entries(colMap)) {
     if (key in data) {
       fields.push(`${col} = $${idx++}`);
-      values.push((data as any)[key]);
+      values.push(d[key]);
     }
   }
 
@@ -102,10 +92,11 @@ export async function updateTerm(id: string, data: Partial<GlossaryTerm>): Promi
     isActive: 'is_active',
   };
 
+  const d = data as Record<string, unknown>;
   for (const [key, col] of Object.entries(colMap)) {
     if (key in data) {
       sets.push(`${col} = $${idx++}`);
-      vals.push((data as any)[key]);
+      vals.push(d[key]);
     }
   }
 
@@ -190,50 +181,52 @@ function toISOOrNull(val: unknown): string | null {
   return String(val);
 }
 
-function mapOrg(row: any): Organization {
+type DbRow = Record<string, unknown>;
+
+function mapOrg(row: DbRow): Organization {
   return {
-    id: row.id,
-    name: row.name,
-    slug: row.slug,
-    languages: row.languages || [],
-    domains: row.domains || [],
-    visibility: row.visibility || 'private',
+    id: row.id as string,
+    name: row.name as string,
+    slug: row.slug as string,
+    languages: (row.languages as string[]) || [],
+    domains: (row.domains as string[]) || [],
+    visibility: (row.visibility as Organization['visibility']) || 'private',
     createdAt: toISO(row.created_at),
   };
 }
 
-function mapTerm(row: any): GlossaryTerm {
+function mapTerm(row: DbRow): GlossaryTerm {
   return {
-    id: row.id,
-    orgId: row.org_id,
-    sourceLang: row.source_lang,
-    targetLang: row.target_lang,
-    domain: row.domain,
-    sourceTerm: row.source_term,
-    targetTerm: row.target_term,
-    baseModelTerm: row.base_model_term || '',
-    notes: row.notes || null,
-    approvedBy: row.approved_by || '',
+    id: row.id as string,
+    orgId: row.org_id as string,
+    sourceLang: row.source_lang as string,
+    targetLang: row.target_lang as string,
+    domain: row.domain as string,
+    sourceTerm: row.source_term as string,
+    targetTerm: row.target_term as string,
+    baseModelTerm: (row.base_model_term as string) || '',
+    notes: (row.notes as string) || null,
+    approvedBy: (row.approved_by as string) || '',
     approvedAt: toISO(row.approved_at),
-    usageCount: row.usage_count || 0,
+    usageCount: (row.usage_count as number) || 0,
     isActive: row.is_active !== false,
   };
 }
 
-function mapSuggestion(row: any): GlossarySuggestion {
+function mapSuggestion(row: DbRow): GlossarySuggestion {
   return {
-    id: row.id,
-    orgId: row.org_id,
-    suggestedBy: row.suggested_by || '',
-    sourceLang: row.source_lang,
-    targetLang: row.target_lang,
-    domain: row.domain,
-    sourceTerm: row.source_term,
-    suggestedTerm: row.suggested_term,
-    baseModelTerm: row.base_model_term || '',
-    context: row.context || null,
-    status: row.status || 'pending',
-    reviewedBy: row.reviewed_by || null,
+    id: row.id as string,
+    orgId: row.org_id as string,
+    suggestedBy: (row.suggested_by as string) || '',
+    sourceLang: row.source_lang as string,
+    targetLang: row.target_lang as string,
+    domain: row.domain as string,
+    sourceTerm: row.source_term as string,
+    suggestedTerm: row.suggested_term as string,
+    baseModelTerm: (row.base_model_term as string) || '',
+    context: (row.context as string) || null,
+    status: (row.status as GlossarySuggestion['status']) || 'pending',
+    reviewedBy: (row.reviewed_by as string) || null,
     reviewedAt: toISOOrNull(row.reviewed_at),
     createdAt: toISO(row.created_at),
   };

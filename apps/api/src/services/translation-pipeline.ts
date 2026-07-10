@@ -2,8 +2,7 @@ import { applyGlossaryOverrides } from '@vernacular/glossary';
 import type { TranslationRequest, TranslationResult, GlossaryTerm, ModelMode, ModelOverrides } from '@vernacular/shared';
 import { MODE_PRESETS, LANGUAGE_CONFIGS } from '@vernacular/shared';
 import { callTranslate } from './inference-client.js';
-
-const LOW_CONFIDENCE_THRESHOLD = 0.7;
+import { listTerms } from './org-store.js';
 
 function getLanguageConfig(code: string) {
   return LANGUAGE_CONFIGS.find((c) => c.code === code);
@@ -47,26 +46,12 @@ export async function runTranslation(req: TranslationRequest): Promise<Translati
 
   let glossaryOverrides: GlossaryTerm[] = [];
   if (req.orgId) {
-    glossaryOverrides = getOrgGlossary(req.orgId, req.sourceLang, req.targetLang, domain);
+    glossaryOverrides = await listTerms(req.orgId);
   }
 
   const overrideResult = applyGlossaryOverrides(
     sidecarResult.translation,
-    glossaryOverrides.map((t) => ({
-      id: t.id,
-      orgId: t.orgId,
-      sourceLang: t.sourceLang,
-      targetLang: t.targetLang,
-      domain: t.domain,
-      sourceTerm: t.sourceTerm,
-      targetTerm: t.targetTerm,
-      baseModelTerm: t.baseModelTerm,
-      notes: t.notes,
-      approvedBy: t.approvedBy,
-      approvedAt: new Date(t.approvedAt),
-      usageCount: t.usageCount,
-      isActive: true,
-    })),
+    glossaryOverrides,
     req.sourceLang,
     req.targetLang,
     domain,
@@ -95,6 +80,4 @@ export async function runTranslation(req: TranslationRequest): Promise<Translati
   };
 }
 
-function getOrgGlossary(_orgId: string, _sourceLang: string, _targetLang: string, _domain: string): GlossaryTerm[] {
-  return [];
-}
+

@@ -2,29 +2,9 @@
 // Deterministic glossary override logic. No ML, no async, no side effects.
 // Applied after base translation, before returning results to the user.
 
-export interface GlossaryTerm {
-  id: string;
-  orgId: string;
-  sourceLang: string;
-  targetLang: string;
-  domain: string;
-  sourceTerm: string;
-  targetTerm: string;
-  baseModelTerm: string;
-  notes: string | null;
-  approvedBy: string;
-  approvedAt: Date;
-  usageCount: number;
-  isActive: boolean;
-}
+import type { GlossaryTerm, GlossaryOverride } from '@vernacular/shared';
 
-export interface GlossaryOverride {
-  sourceTerm: string;
-  baseModelTerm: string;
-  overrideTerm: string;
-  glossaryId: string;
-  domain: string;
-}
+export type { GlossaryTerm, GlossaryOverride };
 
 export interface ApplyOverridesResult {
   result: string;

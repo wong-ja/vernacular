@@ -1,8 +1,12 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 
-// Mock the inference client
+// Mock the inference client and org store
 vi.mock('../services/inference-client.js', () => ({
   callTranslate: vi.fn(),
+}));
+
+vi.mock('../services/org-store.js', () => ({
+  listTerms: () => Promise.resolve([]),
 }));
 
 import { callTranslate } from '../services/inference-client.js';

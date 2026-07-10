@@ -1,14 +1,5 @@
-import postgres from 'postgres';
 import type { ReviewRecord } from '@vernacular/shared';
-
-const DATABASE_URL = process.env.DATABASE_URL;
-if (!DATABASE_URL) throw new Error('DATABASE_URL is required');
-
-const sql = postgres(DATABASE_URL, {
-  max: 5,
-  idle_timeout: 30,
-  connect_timeout: 10,
-});
+import { sql } from './db.js';
 
 export async function listReviews(orgId: string, status?: string): Promise<ReviewRecord[]> {
   if (status) {
@@ -55,10 +46,11 @@ export async function updateReview(id: string, data: { status?: string; hasEdit?
     reason: 'reason',
   };
 
+  const d = data as Record<string, unknown>;
   for (const [key, col] of Object.entries(colMap)) {
     if (key in data) {
       sets.push(`${col} = $${idx++}`);
-      vals.push((data as any)[key]);
+      vals.push(d[key]);
     }
   }
 
@@ -71,18 +63,20 @@ export async function updateReview(id: string, data: { status?: string; hasEdit?
   return row ? mapReview(row) : undefined;
 }
 
-function mapReview(row: any): ReviewRecord {
+type DbRow = Record<string, unknown>;
+
+function mapReview(row: DbRow): ReviewRecord {
   return {
-    id: row.id,
-    logId: row.log_id,
-    orgId: row.org_id,
-    reviewerId: row.reviewer_id || '',
-    status: row.status || 'pending',
-    hasEdit: row.has_edit || false,
-    editedContent: row.edited_content || undefined,
-    flaggedTermCount: row.flagged_term_count || 0,
-    flaggedTerms: row.flagged_terms || undefined,
-    reason: row.reason || undefined,
+    id: row.id as string,
+    logId: row.log_id as string,
+    orgId: row.org_id as string,
+    reviewerId: (row.reviewer_id as string) || '',
+    status: (row.status as ReviewRecord['status']) || 'pending',
+    hasEdit: (row.has_edit as boolean) || false,
+    editedContent: (row.edited_content as string) || undefined,
+    flaggedTermCount: (row.flagged_term_count as number) || 0,
+    flaggedTerms: (row.flagged_terms as string[]) || undefined,
+    reason: (row.reason as string) || undefined,
     reviewedAt: row.reviewed_at ? (row.reviewed_at instanceof Date ? row.reviewed_at.toISOString() : String(row.reviewed_at)) : '',
   };
 }

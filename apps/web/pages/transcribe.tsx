@@ -1,6 +1,6 @@
 import { useState, useRef } from 'react';
 import type { FileTranslationResult } from '@vernacular/shared';
-import { LANGUAGES, REGIONS, getLanguagesByRegion } from '@vernacular/shared';
+import { REGIONS, getLanguagesByRegion } from '@vernacular/shared';
 
 export default function TranscribePage() {
   const [file, setFile] = useState<File | null>(null);

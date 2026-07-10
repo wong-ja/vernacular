@@ -18,6 +18,12 @@ export function buildApp() {
   app.register(cors, { origin: true });
   app.register(multipart, { limits: { fileSize: 500 * 1024 * 1024 } });
 
+  app.setErrorHandler((err: Error & { statusCode?: number }, request, reply) => {
+    request.log.error({ err }, 'Unhandled error');
+    const statusCode = err.statusCode || 500;
+    return reply.status(statusCode).send({ status: 'error', message: err.message || 'Internal server error' });
+  });
+
   app.get('/health', async () => ({
     status: 'ok',
     service: 'api',

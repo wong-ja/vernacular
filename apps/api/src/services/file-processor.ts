@@ -1,6 +1,6 @@
 import { randomUUID } from 'node:crypto';
 import { createWriteStream } from 'node:fs';
-import { mkdir, unlink, writeFile } from 'node:fs/promises';
+import { mkdir, unlink } from 'node:fs/promises';
 import { pipeline } from 'node:stream/promises';
 import { spawn, execSync } from 'node:child_process';
 import { tmpdir } from 'node:os';

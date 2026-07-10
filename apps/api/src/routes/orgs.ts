@@ -1,5 +1,4 @@
 import type { FastifyInstance } from 'fastify';
-import type { SupportedLanguage } from '@vernacular/shared';
 import { listOrgs, getOrg, getOrgBySlug, createOrg, updateOrg } from '../services/org-store.js';
 
 export async function orgRoutes(app: FastifyInstance) {
@@ -39,7 +38,7 @@ export async function orgRoutes(app: FastifyInstance) {
     async (request, reply) => {
       const body: Record<string, unknown> = {};
       if (request.body.name !== undefined) body.name = request.body.name;
-      if (request.body.languages !== undefined) body.languages = request.body.languages as SupportedLanguage[];
+      if (request.body.languages !== undefined) body.languages = request.body.languages;
       if (request.body.domains !== undefined) body.domains = request.body.domains;
       if (request.body.visibility !== undefined) body.visibility = request.body.visibility;
 

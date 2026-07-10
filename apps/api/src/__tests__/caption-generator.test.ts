@@ -57,9 +57,9 @@ describe('generateVtt', () => {
     const result = generateVtt(segments);
     expect(result).toBe(
       'WEBVTT\n\n' +
-      '00:00:00,000 --> 00:00:02,500\nHello world\n\n' +
-      '00:00:03,000 --> 00:00:05,200\nThis is a test.\n\n' +
-      '00:00:06,000 --> 00:00:08,000\nWith punctuation!\n\n'
+      '00:00:00.000 --> 00:00:02.500\nHello world\n\n' +
+      '00:00:03.000 --> 00:00:05.200\nThis is a test.\n\n' +
+      '00:00:06.000 --> 00:00:08.000\nWith punctuation!\n\n'
     );
   });
 

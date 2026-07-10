@@ -13,7 +13,7 @@ function makeTerm(overrides: Partial<GlossaryTerm> & { id: string }): GlossaryTe
     baseModelTerm: 'hospital',
     notes: null,
     approvedBy: 'user-1',
-    approvedAt: new Date(),
+    approvedAt: new Date().toISOString(),
     usageCount: 1,
     isActive: true,
     ...overrides,

@@ -7,6 +7,7 @@ import {
   type ModelMode,
   type ModelTask,
   type LanguageConfig,
+  type ModelOverrides,
 } from '@vernacular/shared';
 
 interface ModelSelectorProps {
@@ -16,12 +17,6 @@ interface ModelSelectorProps {
   charCount?: number;
   onModeChange?: (mode: ModelMode) => void;
   onModelOverride?: (overrides: ModelOverrides) => void;
-}
-
-export interface ModelOverrides {
-  asrModelId?: string;
-  translationModelId?: string;
-  ttsModelId?: string;
 }
 
 const ACCURACY_DOTS: Record<number, string> = {
@@ -271,7 +266,6 @@ function ModelRow({
   onOverride: (task: ModelTask, modelId: string) => void;
 }) {
   const [pickerOpen, setPickerOpen] = useState(false);
-  const [realExpanded, setRealExpanded] = useState(false);
   const model = getModel(modelId);
 
   if (!model) {

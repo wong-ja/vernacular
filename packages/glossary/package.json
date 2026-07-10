@@ -9,6 +9,9 @@
     "typecheck": "tsc --noEmit",
     "test": "vitest run"
   },
+  "dependencies": {
+    "@vernacular/shared": "*"
+  },
   "devDependencies": {
     "typescript": "^5.5.0",
     "vitest": "^4.1.10"
