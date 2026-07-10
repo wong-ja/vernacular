@@ -16,7 +16,9 @@
     "baseUrl": "../../",
     "paths": {
       "@/*": ["./apps/web/*"],
-      "packages/*": ["./packages/*"]
+      "packages/*": ["./packages/*"],
+      "@vernacular/shared": ["./packages/shared/src/index.ts"],
+      "@vernacular/glossary": ["./packages/glossary/src/index.ts"]
     }
   },
   "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", "pages/**/*", "components/**/*"],
