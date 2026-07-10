@@ -1,18 +1,6 @@
 import { useState } from 'react';
 import type { TranslationResult } from '@vernacular/shared';
-
-const LANGUAGE_OPTIONS = [
-  { code: 'eng_Latn', label: 'English' },
-  { code: 'spa_Latn', label: 'Spanish' },
-  { code: 'tgl_Latn', label: 'Tagalog' },
-  { code: 'yue_Hant', label: 'Cantonese' },
-  { code: 'hmn_Latn', label: 'Hmong' },
-  { code: 'zho_Hans', label: 'Chinese (Simplified)' },
-  { code: 'vie_Latn', label: 'Vietnamese' },
-  { code: 'khm_Khmr', label: 'Khmer' },
-  { code: 'ara_Arab', label: 'Arabic' },
-  { code: 'fra_Latn', label: 'French' },
-];
+import { LANGUAGES, REGIONS, getLanguagesByRegion } from '@vernacular/shared';
 
 const DOMAIN_OPTIONS = [
   { value: 'general', label: 'General' },
@@ -83,8 +71,12 @@ export default function TranslatePage() {
               onChange={(e) => setSourceLang(e.target.value)}
               className="w-full rounded-md border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 px-3 py-2 text-sm"
             >
-              {LANGUAGE_OPTIONS.map((l) => (
-                <option key={l.code} value={l.code}>{l.label}</option>
+              {REGIONS.map((region) => (
+                <optgroup key={region} label={region}>
+                  {getLanguagesByRegion(region).map((l) => (
+                    <option key={l.code} value={l.code}>{l.name}</option>
+                  ))}
+                </optgroup>
               ))}
             </select>
           </div>
@@ -102,8 +94,12 @@ export default function TranslatePage() {
               onChange={(e) => setTargetLang(e.target.value)}
               className="w-full rounded-md border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 px-3 py-2 text-sm"
             >
-              {LANGUAGE_OPTIONS.map((l) => (
-                <option key={l.code} value={l.code}>{l.label}</option>
+              {REGIONS.map((region) => (
+                <optgroup key={region} label={region}>
+                  {getLanguagesByRegion(region).map((l) => (
+                    <option key={l.code} value={l.code}>{l.name}</option>
+                  ))}
+                </optgroup>
               ))}
             </select>
           </div>

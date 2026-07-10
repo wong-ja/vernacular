@@ -6,27 +6,7 @@
 // LANGUAGE TYPES
 // ─────────────────────────────────────────────
 
-export type SupportedLanguage =
-  | 'eng_Latn'
-  | 'spa_Latn'
-  | 'tgl_Latn'
-  | 'yue_Hant'
-  | 'zho_Hans'
-  | 'zho_Hant'
-  | 'vie_Latn'
-  | 'hmn_Latn'
-  | 'khm_Khmr'
-  | 'hat_Latn'
-  | 'jpn_Jpan'
-  | 'kor_Hang'
-  | 'ara_Arab'
-  | 'fra_Latn'
-  | 'deu_Latn'
-  | 'por_Latn'
-  | 'ita_Latn'
-  | 'nld_Latn'
-  | 'hin_Deva'
-  | 'rus_Cyrl';
+export type SupportedLanguage = string;
 
 // ─────────────────────────────────────────────
 // TRANSLATION PIPELINE

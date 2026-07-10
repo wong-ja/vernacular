@@ -1,3 +1,4 @@
-export * from './shared-contract.js';
-export * from './model-registry.js';
-export * from './inference-backends.js';
+export * from './shared-contract';
+export * from './model-registry';
+export * from './inference-backends';
+export * from './languages';

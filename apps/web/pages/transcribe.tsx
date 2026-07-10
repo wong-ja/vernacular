@@ -1,20 +1,9 @@
 import { useState, useRef } from 'react';
 import type { FileTranslationResult } from '@vernacular/shared';
-
-const LANGUAGE_OPTIONS = [
-  { code: 'eng_Latn', label: 'English' },
-  { code: 'spa_Latn', label: 'Spanish' },
-  { code: 'tgl_Latn', label: 'Tagalog' },
-  { code: 'yue_Hant', label: 'Cantonese' },
-  { code: 'hmn_Latn', label: 'Hmong' },
-  { code: 'zho_Hans', label: 'Chinese (Simplified)' },
-  { code: 'vie_Latn', label: 'Vietnamese' },
-  { code: 'khm_Khmr', label: 'Khmer' },
-];
+import { LANGUAGES, REGIONS, getLanguagesByRegion } from '@vernacular/shared';
 
 export default function TranscribePage() {
   const [file, setFile] = useState<File | null>(null);
-  const [sourceLang, setSourceLang] = useState('eng_Latn');
   const [result, setResult] = useState<FileTranslationResult | null>(null);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
@@ -82,13 +71,17 @@ export default function TranscribePage() {
         <div>
           <label className="block text-sm font-medium mb-1">Audio language (optional, leave blank for auto-detect)</label>
           <select
-            value={sourceLang}
-            onChange={(e) => setSourceLang(e.target.value)}
+            value={''}
+            onChange={(e) => {}}
             className="rounded-md border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 px-3 py-2 text-sm"
           >
             <option value="">Auto-detect</option>
-            {LANGUAGE_OPTIONS.map((l) => (
-              <option key={l.code} value={l.code}>{l.label}</option>
+            {REGIONS.map((region) => (
+              <optgroup key={region} label={region}>
+                {getLanguagesByRegion(region).map((l) => (
+                  <option key={l.code} value={l.code}>{l.name}</option>
+                ))}
+              </optgroup>
             ))}
           </select>
         </div>
