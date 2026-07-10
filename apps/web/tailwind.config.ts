@@ -6,49 +6,55 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
-        base: '#0F0F0F',
+        base: 'var(--color-base)',
         surface: {
-          1: '#1A1A1A',
-          2: '#242424',
-          3: '#2E2E2E',
+          1: 'var(--color-surface-1)',
+          2: 'var(--color-surface-2)',
+          3: 'var(--color-surface-3)',
         },
         border: {
-          DEFAULT: '#333333',
-          subtle: '#222222',
+          DEFAULT: 'var(--color-border)',
+          subtle: 'var(--color-border-subtle)',
         },
         text: {
-          primary: '#F2F2F2',
-          secondary: '#9A9A9A',
-          tertiary: '#5A5A5A',
+          primary: 'var(--color-text-primary)',
+          secondary: 'var(--color-text-secondary)',
+          tertiary: 'var(--color-text-tertiary)',
         },
         accent: {
-          DEFAULT: '#4A7CFF',
-          hover: '#6B94FF',
-          subtle: '#1A2A4A',
+          DEFAULT: 'var(--color-accent)',
+          hover: 'var(--color-accent-hover)',
+          subtle: 'var(--color-accent-subtle)',
         },
+        accentOn: 'var(--color-accent-on)',
         success: {
-          DEFAULT: '#2D7A4F',
-          text: '#4CAF7D',
-          bg: '#0F2A1A',
+          DEFAULT: 'var(--color-success)',
+          text: 'var(--color-success-text)',
+          bg: 'var(--color-success-bg)',
         },
         warning: {
-          DEFAULT: '#8A6200',
-          text: '#F5B800',
-          bg: '#2A1F00',
+          DEFAULT: 'var(--color-warning)',
+          text: 'var(--color-warning-text)',
+          bg: 'var(--color-warning-bg)',
         },
         error: {
-          DEFAULT: '#8A2020',
-          text: '#F55B5B',
-          bg: '#2A0F0F',
+          DEFAULT: 'var(--color-error)',
+          text: 'var(--color-error-text)',
+          bg: 'var(--color-error-bg)',
         },
         info: {
-          DEFAULT: '#1A4A7A',
-          text: '#60A5FA',
-          bg: '#0F1E2A',
+          DEFAULT: 'var(--color-info)',
+          text: 'var(--color-info-text)',
+          bg: 'var(--color-info-bg)',
+        },
+        brand: {
+          dark: '#3D4670',
+          light: '#9CB4FF',
         },
       },
       fontFamily: {
         sans: ['Inter', '-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'sans-serif'],
+        heading: ['Lora', 'Georgia', 'Times New Roman', 'serif'],
         mono: ['JetBrains Mono', 'Fira Code', 'Cascadia Code', 'monospace'],
       },
       fontSize: {
@@ -84,9 +90,9 @@ const config: Config = {
         full: '9999px',
       },
       boxShadow: {
-        sm: '0 1px 3px rgba(0,0,0,0.4)',
-        md: '0 4px 12px rgba(0,0,0,0.5)',
-        lg: '0 8px 24px rgba(0,0,0,0.6)',
+        sm: 'var(--shadow-sm)',
+        md: 'var(--shadow-md)',
+        lg: 'var(--shadow-lg)',
       },
       maxWidth: {
         container: '1280px',
