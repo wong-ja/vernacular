@@ -40,12 +40,12 @@ def _patched_load_template(self, name, globals_):
     try:
         template = self.cache.get(cache_key)
         if template is None:
-            template = self._load(name, globals_)
+            template = self.loader.load(self, name, globals_)
             if self.cache is not None:
                 self.cache[cache_key] = template
         return template
     except TypeError:
-        return self._load(name, globals_)
+        return self.loader.load(self, name, globals_)
 
 
 _jinja_env.Environment._load_template = _patched_load_template
@@ -299,4 +299,4 @@ with gr.Blocks(
 demo.queue()
 
 if __name__ == "__main__":
-    demo.launch()
+    demo.launch(share=True)
