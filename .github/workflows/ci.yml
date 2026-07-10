@@ -6,6 +6,9 @@ on:
   pull_request:
     branches: [main]
 
+env:
+  CI: true
+
 jobs:
   typecheck:
     name: TypeScript type-check
@@ -18,6 +21,20 @@ jobs:
           cache: npm
       - run: npm ci
       - run: npx tsc --noEmit
+
+  web-build:
+    name: Web app build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npm run build --workspace=apps/web
+        env:
+          CI: true
 
   python-syntax:
     name: Python syntax check
@@ -43,8 +60,8 @@ jobs:
       - run: npm ci
       - run: npm run test --workspace=packages/glossary
 
-  api-tests:
-    name: API integration tests
+  api-unit-tests:
+    name: API service tests
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -53,4 +70,5 @@ jobs:
           node-version: 22
           cache: npm
       - run: npm ci
+      # No DATABASE_URL set — tests mock DB stores via vi.mock
       - run: npx vitest run apps/api/src/__tests__/
