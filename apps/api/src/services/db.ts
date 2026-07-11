@@ -11,10 +11,12 @@ function _ensure() {
   return _sql;
 }
 
+const PG = postgres as unknown as new (...args: any[]) => ReturnType<typeof postgres>;
+
 export const sql = new Proxy(
   {} as ReturnType<typeof postgres>,
   {
-    apply(_target, _thisArg, argArray: unknown[]) {
+    apply(_target, _thisArg, argArray: any[]) {
       return _ensure()(argArray[0] as TemplateStringsArray, ...argArray.slice(1));
     },
     get(_target, prop: string | symbol) {
