@@ -16,7 +16,7 @@ export default function TopNav() {
   const { theme, toggle } = useTheme();
 
   return (
-    <header className="fixed top-0 left-0 right-0 z-50 h-14 bg-surface-1 border-b border-border dark:bg-brand-dark dark:border-brand-dark">
+    <header className="fixed top-0 left-0 right-0 z-50 h-14 bg-surface-1 border-b border-border shadow-xs dark:bg-surface-1 dark:border-border">
       <div className="max-w-container mx-auto px-6 h-full flex items-center justify-between">
         <Link href="/" className="flex items-center gap-2 shrink-0">
           <picture>
@@ -88,7 +88,7 @@ export default function TopNav() {
       </div>
 
       {mobileOpen && (
-        <div className="md:hidden bg-surface-1 border-b border-border px-6 py-4 space-y-3">
+        <div className="md:hidden bg-surface-1 dark:bg-surface-1 border-b border-border px-6 py-4 space-y-3">
           {links.map((link) => (
             <Link
               key={link.href}

@@ -15,6 +15,7 @@ const config: Config = {
         border: {
           DEFAULT: 'var(--color-border)',
           subtle: 'var(--color-border-subtle)',
+          strong: 'var(--color-border-strong)',
         },
         text: {
           primary: 'var(--color-text-primary)',
@@ -23,6 +24,7 @@ const config: Config = {
         },
         accent: {
           DEFAULT: 'var(--color-accent)',
+          light: 'var(--color-accent-light)',
           hover: 'var(--color-accent-hover)',
           subtle: 'var(--color-accent-subtle)',
         },
@@ -31,26 +33,36 @@ const config: Config = {
           DEFAULT: 'var(--color-success)',
           text: 'var(--color-success-text)',
           bg: 'var(--color-success-bg)',
+          border: 'var(--color-success-border)',
         },
         warning: {
           DEFAULT: 'var(--color-warning)',
           text: 'var(--color-warning-text)',
           bg: 'var(--color-warning-bg)',
+          border: 'var(--color-warning-border)',
         },
         error: {
           DEFAULT: 'var(--color-error)',
           text: 'var(--color-error-text)',
           bg: 'var(--color-error-bg)',
+          border: 'var(--color-error-border)',
         },
         info: {
           DEFAULT: 'var(--color-info)',
           text: 'var(--color-info-text)',
           bg: 'var(--color-info-bg)',
+          border: 'var(--color-info-border)',
         },
         brand: {
           dark: '#3D4670',
           light: '#9CB4FF',
         },
+        forest: '#1D3830',
+        'mardi-gras': '#38003D',
+        picasso: '#FFF7AE',
+        periwinkle: '#A8BEF7',
+        'rose-bud': '#FBBEA2',
+        'water-leaf': '#9AE4E5',
       },
       fontFamily: {
         sans: ['Inter', '-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'sans-serif'],
@@ -90,6 +102,7 @@ const config: Config = {
         full: '9999px',
       },
       boxShadow: {
+        xs: 'var(--shadow-xs)',
         sm: 'var(--shadow-sm)',
         md: 'var(--shadow-md)',
         lg: 'var(--shadow-lg)',
@@ -102,9 +115,29 @@ const config: Config = {
           '0%': { backgroundPosition: '200% 0' },
           '100%': { backgroundPosition: '-200% 0' },
         },
+        spin: {
+          from: { transform: 'rotate(0deg)' },
+          to: { transform: 'rotate(360deg)' },
+        },
+        marquee: {
+          from: { transform: 'translateX(0)' },
+          to: { transform: 'translateX(-50%)' },
+        },
+        'slide-in-right': {
+          from: { transform: 'translateX(calc(100% + 16px))', opacity: '0' },
+          to: { transform: 'translateX(0)', opacity: '1' },
+        },
+        'fade-in': {
+          from: { opacity: '0', transform: 'translateY(4px)' },
+          to: { opacity: '1', transform: 'translateY(0)' },
+        },
       },
       animation: {
         shimmer: 'shimmer 1.5s infinite',
+        spin: 'spin 0.8s linear infinite',
+        marquee: 'marquee 30s linear infinite',
+        'slide-in-right': 'slide-in-right 200ms ease-out',
+        'fade-in': 'fade-in 200ms ease-out',
       },
     },
   },

@@ -17,6 +17,7 @@ interface ModelSelectorProps {
   charCount?: number;
   onModeChange?: (mode: ModelMode) => void;
   onModelOverride?: (overrides: ModelOverrides) => void;
+  defaultCollapsed?: boolean;
 }
 
 const ACCURACY_DOTS: Record<number, string> = {
@@ -94,7 +95,17 @@ function LicenseBadge({ license, licensePermission, licenseNote }: ModelEntry) {
       }`}
       title={tooltip}
     >
-      {isOpen ? '\u2713' : '\u26A0\uFE0F'} {label}
+      {isOpen ? (
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+          <polyline points="20 6 9 17 4 12"/>
+        </svg>
+      ) : (
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+          <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>
+          <line x1="12" y1="9" x2="12" y2="13"/>
+          <line x1="12" y1="17" x2="12.01" y2="17"/>
+        </svg>
+      )} {label}
     </span>
   );
 }
@@ -109,7 +120,13 @@ function WatermarkWarning({ model }: { model: ModelEntry }) {
         onClick={() => setExpanded(!expanded)}
         className="flex items-center gap-2 text-sm font-medium text-warning-text"
       >
-        <span aria-hidden="true">{'\u26A0\uFE0F'}</span>
+        <span aria-hidden="true">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>
+            <line x1="12" y1="9" x2="12" y2="13"/>
+            <line x1="12" y1="17" x2="12.01" y2="17"/>
+          </svg>
+        </span>
         Audio outputs from this model include an imperceptible watermark.
         <span className="text-xs ml-1">{expanded ? '\u25B2' : '\u25BC'}</span>
       </button>
@@ -277,8 +294,13 @@ function ModelRow({
             <LicenseBadge {...model} />
           </div>
           {model.watermarked && (
-            <p className="text-xs text-warning-text mt-1">
-              {'\u26A0\uFE0F'} Audio outputs include an imperceptible watermark
+            <p className="text-xs text-warning-text mt-1 inline-flex items-center gap-1">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>
+                <line x1="12" y1="9" x2="12" y2="13"/>
+                <line x1="12" y1="17" x2="12.01" y2="17"/>
+              </svg>
+              Audio outputs include an imperceptible watermark
             </p>
           )}
           <div className="flex items-center gap-3 mt-1 text-xs text-text-secondary">
@@ -300,7 +322,12 @@ function ModelRow({
         rel="noopener noreferrer"
         className="inline-block mt-1 text-xs text-info-text hover:underline"
       >
-        Learn more {'\u2197'}
+        Learn more
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="inline-block">
+          <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/>
+          <polyline points="15 3 21 3 21 9"/>
+          <line x1="10" y1="14" x2="21" y2="3"/>
+        </svg>
       </a>
 
       <WatermarkWarning model={model} />
@@ -326,6 +353,7 @@ export default function ModelSelector({
   charCount,
   onModeChange,
   onModelOverride,
+  defaultCollapsed = false,
 }: ModelSelectorProps) {
   const [mode, setMode] = useState<ModelMode>('balanced');
   const [modelsExpanded, setModelsExpanded] = useState<boolean>(false);
@@ -342,13 +370,13 @@ export default function ModelSelector({
   useEffect(() => {
     const stored = localStorage.getItem('vernacular-models-expanded');
     if (stored === null) {
-      setModelsExpanded(true);
+      setModelsExpanded(!defaultCollapsed);
     }
     const storedLic = localStorage.getItem('vernacular-licenses-expanded');
     if (storedLic === null) {
-      setLicensesExpanded(true);
+      setLicensesExpanded(!defaultCollapsed);
     }
-  }, []);
+  }, [defaultCollapsed]);
 
   useEffect(() => {
     localStorage.setItem('vernacular-models-expanded', String(modelsExpanded));
@@ -382,11 +410,33 @@ export default function ModelSelector({
   const preset = MODE_PRESETS[mode];
   const estimatedTime = estimateProcessingTime(mode, fileDurationSeconds, charCount);
 
-  const modes: { key: ModelMode; icon: string; label: string }[] = [
-    { key: 'fast', icon: '\u26A1', label: 'Fast' },
-    { key: 'balanced', icon: '\u2696\uFE0F', label: 'Balanced' },
-    { key: 'accurate', icon: '\uD83C\uDFAF', label: 'Accurate' },
-    { key: 'rare-language', icon: '\uD83C\uDF0D', label: 'Rare Language' },
+  const modes: { key: ModelMode; icon: React.ReactNode; label: string }[] = [
+    { key: 'fast', icon: (
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+        <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/>
+      </svg>
+    ), label: 'Fast' },
+    { key: 'balanced', icon: (
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round">
+        <line x1="12" y1="3" x2="12" y2="20"/>
+        <path d="M3 9l4 4 4-4M17 9l4 4-4 4"/>
+        <line x1="3" y1="20" x2="21" y2="20"/>
+      </svg>
+    ), label: 'Balanced' },
+    { key: 'accurate', icon: (
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round">
+        <circle cx="12" cy="12" r="10"/>
+        <circle cx="12" cy="12" r="6"/>
+        <circle cx="12" cy="12" r="2"/>
+      </svg>
+    ), label: 'Accurate' },
+    { key: 'rare-language', icon: (
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round">
+        <circle cx="12" cy="12" r="10"/>
+        <line x1="2" y1="12" x2="22" y2="12"/>
+        <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/>
+      </svg>
+    ), label: 'Rare Language' },
   ];
 
   return (
@@ -398,9 +448,9 @@ export default function ModelSelector({
             <button
               key={m.key}
               onClick={() => handleModeChange(m.key)}
-              className={`px-4 py-2 rounded-md text-sm font-medium transition-colors cursor-pointer ${
+              className={`px-4 py-2 rounded-md text-sm font-medium transition-colors cursor-pointer inline-flex items-center gap-1.5 ${
                 mode === m.key
-                  ? 'bg-accent text-accentOn shadow-sm'
+                  ? 'bg-accent-subtle border border-accent text-accent'
                   : 'bg-surface-2 text-text-secondary hover:bg-surface-3 hover:text-text-primary'
               }`}
             >
@@ -420,7 +470,10 @@ export default function ModelSelector({
           onClick={() => setModelsExpanded(!modelsExpanded)}
           className="flex items-center gap-2 text-sm font-medium text-text-primary hover:text-accent transition-colors cursor-pointer"
         >
-          {modelsExpanded ? '\u25BC' : '\u25B6'} What models will be used?
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={`transition-transform ${modelsExpanded ? '' : '-rotate-90'}`}>
+            <polyline points="6 9 12 15 18 9"/>
+          </svg>
+          What models will be used?
         </button>
         {modelsExpanded && (
           <div className="mt-2 p-4 bg-surface-2 rounded-lg border border-border">
@@ -459,8 +512,13 @@ export default function ModelSelector({
       {langConfig?.accuracyCaveat && (
         <div className="p-3 bg-warning-bg border border-warning rounded-md">
           <p className="text-sm text-warning-text">{langConfig.accuracyCaveat}</p>
-          <button className="mt-2 text-xs font-medium text-warning-text underline hover:no-underline cursor-pointer">
-            Contribute to the community glossary {'\u2197'}
+          <button className="mt-2 text-xs font-medium text-warning-text underline hover:no-underline cursor-pointer inline-flex items-center gap-0.5">
+            Contribute to the community glossary
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/>
+              <polyline points="15 3 21 3 21 9"/>
+              <line x1="10" y1="14" x2="21" y2="3"/>
+            </svg>
           </button>
         </div>
       )}
@@ -474,8 +532,12 @@ export default function ModelSelector({
 
       {/* PRIVACY CONFIRMATION */}
       <div className="p-4 bg-success-bg border border-success rounded-md">
-        <p className="text-sm font-medium text-success-text">
-          {'\uD83D\uDD12'} All processing happens on Vernacular&apos;s own servers.
+        <p className="text-sm font-medium text-success-text inline-flex items-center gap-1.5">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+            <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
+            <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+          </svg>
+          All processing happens on Vernacular&apos;s own servers.
         </p>
         <p className="text-sm text-success-text mt-1">
           Your audio and text are never sent to Google, Microsoft, OpenAI, AssemblyAI, Deepgram, or any other external service. Files are discarded after processing.
@@ -495,13 +557,35 @@ export default function ModelSelector({
           onClick={() => setLicensesExpanded(!licensesExpanded)}
           className="flex items-center gap-2 text-sm font-medium text-text-tertiary hover:text-text-secondary transition-colors cursor-pointer"
         >
-          {licensesExpanded ? '\u25BC' : '\u25B6'} About model licenses
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={`transition-transform ${licensesExpanded ? '' : '-rotate-90'}`}>
+            <polyline points="6 9 12 15 18 9"/>
+          </svg>
+          About model licenses
         </button>
         {licensesExpanded && (
           <div className="mt-2 p-3 bg-surface-2 rounded-md text-xs text-text-secondary space-y-1">
-            <p>{'\u2713'} Open (MIT / Apache 2.0) {'\u2014'} any use, any product</p>
-            <p>{'\u26A0\uFE0F'} Non-commercial (CC-BY-NC / CPML) {'\u2014'} cannot be used in paid products. Vernacular is free and non-commercial {'\u2014'} all models listed are permitted.</p>
-            <p>{'\u26A0\uFE0F'} Watermarked models {'\u2014'} add invisible tags to audio output. See individual model details for specifics.</p>
+            <p className="inline-flex items-center gap-1">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" className="shrink-0">
+                <polyline points="20 6 9 17 4 12"/>
+              </svg>
+              Open (MIT / Apache 2.0) {'\u2014'} any use, any product
+            </p>
+            <p className="inline-flex items-center gap-1">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" className="shrink-0">
+                <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>
+                <line x1="12" y1="9" x2="12" y2="13"/>
+                <line x1="12" y1="17" x2="12.01" y2="17"/>
+              </svg>
+              Non-commercial (CC-BY-NC / CPML) {'\u2014'} cannot be used in paid products. Vernacular is free and non-commercial {'\u2014'} all models listed are permitted.
+            </p>
+            <p className="inline-flex items-center gap-1">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" className="shrink-0">
+                <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>
+                <line x1="12" y1="9" x2="12" y2="13"/>
+                <line x1="12" y1="17" x2="12.01" y2="17"/>
+              </svg>
+              Watermarked models {'\u2014'} add invisible tags to audio output. See individual model details for specifics.
+            </p>
           </div>
         )}
       </div>

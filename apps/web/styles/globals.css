@@ -6,65 +6,103 @@
 
 @layer base {
   :root {
-    --color-base: #F7F5F0;
-    --color-surface-1: #FFFFFF;
-    --color-surface-2: #F2F0EC;
-    --color-surface-3: #E8E6E2;
-    --color-border: #D8D6D0;
-    --color-border-subtle: #ECEAE6;
-    --color-text-primary: #121212;
-    --color-text-secondary: #6A6F86;
-    --color-text-tertiary: #9C9EB0;
-    --color-accent: #9CB4FF;
-    --color-accent-hover: #B0C4FF;
-    --color-accent-subtle: #E8EDFF;
-    --color-accent-on: #1A1A2E;
-    --color-success: #9AE4E5;
-    --color-success-text: #1A6B6B;
-    --color-success-bg: #E8FFFE;
-    --color-warning: #FBBEA2;
-    --color-warning-text: #8A4A1A;
-    --color-warning-bg: #FFF0E8;
-    --color-error: #FFDDE5;
-    --color-error-text: #CC3360;
-    --color-error-bg: #FFF0F4;
-    --color-info: #E8EDFF;
-    --color-info-text: #3E4773;
-    --color-info-bg: #E8EDFF;
-    --shadow-sm: 0 1px 3px rgba(0,0,0,0.06);
-    --shadow-md: 0 4px 12px rgba(0,0,0,0.08);
-    --shadow-lg: 0 8px 24px rgba(0,0,0,0.1);
+    --color-base:           #F5F3EE;
+    --color-surface-1:      #FFFFFF;
+    --color-surface-2:      #F0EEE9;
+    --color-surface-3:      #E5E3DE;
+
+    --color-border:         #D4D2CC;
+    --color-border-subtle:  #E8E6E1;
+    --color-border-strong:  #B8B6B0;
+
+    --color-text-primary:   #1A1207;
+    --color-text-secondary: #5C5E75;
+    --color-text-tertiary:  #9496A8;
+
+    --color-accent:         #7B9EF5;
+    --color-accent-light:   #A8BEF7;
+    --color-accent-hover:   #6B8EE5;
+    --color-accent-subtle:  #EBF0FF;
+    --color-accent-on:      #FFFFFF;
+
+    --color-success:        #9AE4E5;
+    --color-success-text:   #0A5A5B;
+    --color-success-bg:     #E8FFFE;
+    --color-success-border: #7AD4D5;
+
+    --color-warning:        #FBBEA2;
+    --color-warning-text:   #7A3010;
+    --color-warning-bg:     #FFF3EE;
+    --color-warning-border: #F5A080;
+
+    --color-error:          #F5C0CC;
+    --color-error-text:     #A01840;
+    --color-error-bg:       #FFF0F4;
+    --color-error-border:   #E8849A;
+
+    --color-info:           #EBF0FF;
+    --color-info-text:      #3040A0;
+    --color-info-bg:        #EBF0FF;
+    --color-info-border:    #B8C8F8;
+
+    --color-mardi-gras:     #38003D;
+    --color-picasso:        #FFF7AE;
+    --color-forest:         #1D3830;
+
+    --shadow-xs: 0 1px 2px rgba(26,18,7,0.06);
+    --shadow-sm: 0 1px 3px rgba(26,18,7,0.08), 0 1px 2px rgba(26,18,7,0.06);
+    --shadow-md: 0 4px 12px rgba(26,18,7,0.10), 0 2px 4px rgba(26,18,7,0.06);
+    --shadow-lg: 0 8px 24px rgba(26,18,7,0.12), 0 4px 8px rgba(26,18,7,0.06);
   }
 
   .dark {
-    --color-base: #1A1A2E;
-    --color-surface-1: #242440;
-    --color-surface-2: #2A2A4A;
-    --color-surface-3: #30305A;
-    --color-border: #3A3A5A;
-    --color-border-subtle: #2E2E4E;
-    --color-text-primary: #F0EDE8;
-    --color-text-secondary: #9CB4FF;
-    --color-text-tertiary: #6A6F86;
-    --color-accent: #9CB4FF;
-    --color-accent-hover: #B0C4FF;
-    --color-accent-subtle: #2A2A4A;
-    --color-accent-on: #F0EDE8;
-    --color-success: #9AE4E5;
-    --color-success-text: #9AE4E5;
-    --color-success-bg: #1A3A3A;
-    --color-warning: #FBBEA2;
-    --color-warning-text: #FBBEA2;
-    --color-warning-bg: #3A2A1A;
-    --color-error: #FFDDE5;
-    --color-error-text: #FFDDE5;
-    --color-error-bg: #3A1A2A;
-    --color-info: #3E4773;
-    --color-info-text: #9CB4FF;
-    --color-info-bg: #242440;
-    --shadow-sm: 0 1px 3px rgba(0,0,0,0.4);
-    --shadow-md: 0 4px 12px rgba(0,0,0,0.5);
-    --shadow-lg: 0 8px 24px rgba(0,0,0,0.6);
+    --color-base:           #111820;
+    --color-surface-1:      #182030;
+    --color-surface-2:      #1E2A3E;
+    --color-surface-3:      #243448;
+
+    --color-border:         #2E3E54;
+    --color-border-subtle:  #243448;
+    --color-border-strong:  #3E5068;
+
+    --color-text-primary:   #F0EDE6;
+    --color-text-secondary: #A8BEF7;
+    --color-text-tertiary:  #6A7090;
+
+    --color-accent:         #A8BEF7;
+    --color-accent-light:   #A8BEF7;
+    --color-accent-hover:   #C0D0FF;
+    --color-accent-subtle:  #1E2A4A;
+    --color-accent-on:      #0A1020;
+
+    --color-success:        #9AE4E5;
+    --color-success-text:   #9AE4E5;
+    --color-success-bg:     #0A2828;
+    --color-success-border: #2A6868;
+
+    --color-warning:        #FBBEA2;
+    --color-warning-text:   #FBBEA2;
+    --color-warning-bg:     #2A1808;
+    --color-warning-border: #6A3820;
+
+    --color-error:          #F5C0CC;
+    --color-error-text:     #F5C0CC;
+    --color-error-bg:       #2A0818;
+    --color-error-border:   #682030;
+
+    --color-info:           #1E2A4A;
+    --color-info-text:      #A8BEF7;
+    --color-info-bg:        #1E2A4A;
+    --color-info-border:    #2E4070;
+
+    --color-mardi-gras:     #E8B0F0;
+    --color-picasso:        #4A4400;
+    --color-forest:         #1D3830;
+
+    --shadow-xs: 0 1px 2px rgba(0,0,0,0.3);
+    --shadow-sm: 0 1px 3px rgba(0,0,0,0.4), 0 1px 2px rgba(0,0,0,0.3);
+    --shadow-md: 0 4px 12px rgba(0,0,0,0.5), 0 2px 4px rgba(0,0,0,0.3);
+    --shadow-lg: 0 8px 24px rgba(0,0,0,0.6), 0 4px 8px rgba(0,0,0,0.3);
   }
 
   html {
@@ -89,5 +127,52 @@
 @layer components {
   .skeleton {
     @apply bg-gradient-to-r from-surface-2 via-surface-3 to-surface-2 bg-[length:200%_100%] animate-shimmer rounded-sm;
+  }
+
+  @keyframes marquee {
+    from { transform: translateX(0); }
+    to   { transform: translateX(-50%); }
+  }
+
+  .marquee-track {
+    display: flex;
+    width: max-content;
+    animation: marquee 30s linear infinite;
+  }
+
+  .marquee-track:hover {
+    animation-play-state: paused;
+  }
+
+  .marquee-wrapper {
+    overflow: hidden;
+    mask-image: linear-gradient(
+      to right,
+      transparent 0%,
+      black 10%,
+      black 90%,
+      transparent 100%
+    );
+    -webkit-mask-image: linear-gradient(
+      to right,
+      transparent 0%,
+      black 10%,
+      black 90%,
+      transparent 100%
+    );
+  }
+
+  .accent-card-left {
+    border-radius: 0 12px 12px 0;
+    border-left-width: 3px;
+  }
+
+  @keyframes spin {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+  }
+
+  .animate-spin {
+    animation: spin 0.8s linear infinite;
   }
 }

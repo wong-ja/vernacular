@@ -2,6 +2,7 @@ import { useState, useRef } from 'react';
 import type { FileTranslationResult } from '@vernacular/shared';
 import Button from '../components/ui/Button';
 import LanguageSelector from '../components/LanguageSelector';
+import ModelSelector from '../components/ModelSelector';
 import ProgressBar from '../components/ui/ProgressBar';
 import Badge from '../components/ui/Badge';
 
@@ -109,9 +110,11 @@ export default function TranscribePage() {
       {/* Step 1 — Upload */}
       {stage === 'upload' && (
         <div className="max-w-2xl mx-auto space-y-6">
-          <div className="grid grid-cols-2 gap-4">
-            <LanguageSelector value={sourceLang} onChange={setSourceLang} label="Audio language" includeAuto />
-            <LanguageSelector value={targetLang} onChange={setTargetLang} label="Translate to" />
+          <div className="bg-surface-1 border border-border rounded-xl shadow-xs p-4">
+            <div className="grid grid-cols-2 gap-6">
+              <LanguageSelector value={sourceLang} onChange={setSourceLang} label="Audio language" includeAuto />
+              <LanguageSelector value={targetLang} onChange={setTargetLang} label="Translate to" />
+            </div>
           </div>
 
           <div
@@ -147,9 +150,13 @@ export default function TranscribePage() {
                 <p className="text-xs text-text-tertiary mt-3">
                   MP3, WAV, MP4, MOV, OGG, FLAC, M4A, WEBM &middot; PDF, images (JPG, PNG)
                 </p>
-                <p className="text-xs text-text-tertiary mt-1">Maximum file size may apply</p>
+                <p className="text-xs text-text-tertiary mt-1">Maximum file size: 100MB</p>
               </div>
             )}
+          </div>
+
+          <div className="-mx-2">
+            <ModelSelector sourceLang={sourceLang} targetLang={targetLang} defaultCollapsed />
           </div>
 
           {error && (
@@ -173,7 +180,7 @@ export default function TranscribePage() {
       {stage === 'processing' && (
         <div className="max-w-xl mx-auto bg-surface-1 border border-border rounded-xl p-8 space-y-6">
           <div className="text-center space-y-2">
-            <h2 className="text-lg font-semibold text-text-primary">Processing your file</h2>
+            <h2 className="font-heading text-lg font-semibold text-text-primary">Processing your file</h2>
             <p className="text-sm text-text-secondary">
               {file?.name} &middot; {file ? `${(file.size / 1024 / 1024).toFixed(1)} MB` : ''}
             </p>

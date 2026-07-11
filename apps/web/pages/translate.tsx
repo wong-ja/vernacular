@@ -127,110 +127,127 @@ export default function TranslatePage() {
   return (
     <div className="max-w-container mx-auto px-4 py-6 space-y-4">
 
-      {/* Row 1: Language + controls */}
-      <div className="flex items-end gap-2 flex-wrap">
-        <div className="w-44">
-          <LanguageSelector value={srcLang} onChange={(v) => { setPair([v, tgtLang]); setResult(null); setError(''); }} label="Source" />
+      {/* Row 1: Language selector bar — card with shadow-xs */}
+      <div className="bg-surface-1 border border-border rounded-xl shadow-xs p-4">
+        <div className="flex items-end gap-2 flex-wrap">
+          <div className="w-44">
+            <LanguageSelector value={srcLang} onChange={(v) => { setPair([v, tgtLang]); setResult(null); setError(''); }} label="Source" />
+          </div>
+          <button
+            onClick={flip}
+            className="shrink-0 mb-0.5 w-10 h-10 flex items-center justify-center rounded-lg border border-border bg-surface-2 hover:bg-surface-3 hover:border-border-strong transition-all active:scale-[0.96] cursor-pointer text-text-secondary"
+            aria-label="Swap languages"
+          >
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M7 16V4m0 0L3 8m4-4l4 4"/>
+              <path d="M17 8v12m0 0l4-4m-4 4l-4-4"/>
+            </svg>
+          </button>
+          <div className="w-44">
+            <LanguageSelector value={tgtLang} onChange={(v) => { setPair([srcLang, v]); setResult(null); setError(''); }} label="Target" />
+          </div>
+          <label className="flex items-center gap-1.5 shrink-0 mb-0.5 h-10 px-3 rounded-lg border border-border bg-surface-2 cursor-pointer select-none hover:border-accent transition-colors text-sm text-text-secondary">
+            <input type="checkbox" checked={revOn} onChange={(e) => setRevOn(e.target.checked)} className="accent-accent w-3.5 h-3.5" />
+            Reverse
+          </label>
         </div>
-        <button
-          onClick={flip}
-          className="shrink-0 mb-0.5 w-9 h-9 flex items-center justify-center rounded-lg border border-border bg-surface-1 hover:bg-accent-subtle hover:border-accent transition-colors cursor-pointer text-text-secondary hover:text-accent"
-          title="Swap"
-        >
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-            <path d="M7 16l-4-4 4-4" /><path d="M3 12h18" /><path d="M17 8l4 4-4 4" />
-          </svg>
-        </button>
-        <div className="w-44">
-          <LanguageSelector value={tgtLang} onChange={(v) => { setPair([srcLang, v]); setResult(null); setError(''); }} label="Target" />
-        </div>
-        <label className="flex items-center gap-1.5 shrink-0 mb-0.5 h-9 px-3 rounded-lg border border-border bg-surface-1 cursor-pointer select-none hover:border-accent transition-colors text-sm text-text-secondary">
-          <input type="checkbox" checked={revOn} onChange={(e) => setRevOn(e.target.checked)} className="accent-accent w-3.5 h-3.5" />
-          Reverse
-        </label>
       </div>
 
-      {/* Row 2: I/O side by side */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-        <div className="space-y-2">
-          <Textarea
-            value={text}
-            onChange={(e) => setText(e.target.value)}
-            placeholder="Type or paste text..."
-            rows={8}
-            className="min-h-[240px]"
-          />
-          <div className="flex items-center justify-between text-xs text-text-tertiary">
-            <span>{text.length} / 5,000</span>
-            {text.length > 0 && (
-              <button onClick={() => setText('')} className="text-text-secondary hover:text-text-primary transition-colors cursor-pointer font-medium">
-                Clear
-              </button>
-            )}
-          </div>
-        </div>
-
-        <div className="bg-surface-1 border border-border rounded-lg min-h-[240px] p-4 flex flex-col">
-          <h3 className="text-xs font-semibold text-text-secondary uppercase tracking-wider mb-2">
-            {result ? `${srcLang} \u2192 ${tgtLang}` : 'Output'}
-            {result?.processingTimeMs != null && !loading && (
-              <span className="font-normal lowercase text-text-tertiary ml-2">
-                &middot; {result.processingTimeMs < 1000 ? `${result.processingTimeMs}ms` : `${(result.processingTimeMs / 1000).toFixed(1)}s`}
-              </span>
-            )}
-          </h3>
-
-          {loading && (
-            <div className="flex-1 space-y-2">
-              <Skeleton lines={4} />
-              <p className="text-xs text-text-tertiary">Translating...</p>
+      {/* Row 2: I/O card — elevated with shadow-sm, nested surfaces */}
+      <div className="bg-surface-1 border border-border rounded-xl shadow-sm overflow-hidden">
+        <div className="grid grid-cols-1 lg:grid-cols-2">
+          {/* Source column */}
+          <div className="flex flex-col min-h-[300px]">
+            <div className="flex items-center justify-between px-4 py-3 border-b border-border-subtle">
+              <span className="text-xs font-medium text-text-secondary uppercase tracking-widest">Source text</span>
+              <span className="text-xs text-text-tertiary">{text.length} / 5,000</span>
             </div>
-          )}
-
-          {!loading && !result && !error && (
-            <div className="flex-1 flex items-center justify-center">
-              <p className="text-text-tertiary text-sm">Translation will appear here.</p>
+            <div className="flex-1 p-0">
+              <textarea
+                value={text}
+                onChange={(e) => setText(e.target.value)}
+                placeholder="Type or paste text..."
+                className="w-full min-h-[240px] h-full p-4 bg-surface-2 text-base text-text-primary placeholder-text-tertiary resize-none border-none outline-none focus:outline-none leading-relaxed font-sans"
+              />
             </div>
-          )}
-
-          {error && (
-            <div className="flex-1 flex flex-col justify-center space-y-3">
-              <p className="text-sm" style={{ color: 'var(--color-error-text)' }}>{error}</p>
-              <div><Button variant="secondary" size="sm" onClick={handleTranslate}>Retry</Button></div>
-            </div>
-          )}
-
-          {result && !loading && (
-            <div className="flex-1 flex flex-col space-y-3">
-              <p className="text-sm text-text-primary whitespace-pre-wrap leading-relaxed flex-1">
-                {result.translation}
-              </p>
-              <div className="flex items-center gap-2 pt-2 border-t border-border-subtle">
-                <button
-                  onClick={() => copy(result.translation, setCopied)}
-                  className="inline-flex items-center gap-1 text-xs font-medium text-text-secondary hover:text-accent transition-colors cursor-pointer"
-                >
-                  {copied ? (
-                    <><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polyline points="20 6 9 17 4 12" /></svg> Copied</>
-                  ) : (
-                    <><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2" /><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1" /></svg> Copy</>
-                  )}
-                </button>
-                <button onClick={() => {
-                  const blob = new Blob([result.translation], { type: 'text/plain' });
-                  const url = URL.createObjectURL(blob);
-                  const a = document.createElement('a');
-                  a.href = url; a.download = `vernacular-${srcLang}-${tgtLang}.txt`; a.click();
-                  URL.revokeObjectURL(url);
-                }} className="inline-flex items-center gap-1 text-xs font-medium text-text-secondary hover:text-accent transition-colors cursor-pointer">
-                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4" /><polyline points="7 10 12 15 17 10" /><line x1="12" y1="15" x2="12" y2="3" /></svg>
-                  .txt
-                </button>
-                {c && <Badge variant={c.variant}>{c.label}</Badge>}
-                {lowConf && <span className="text-xs text-warning-text ml-auto">Low confidence</span>}
+            <div className="flex items-center justify-between px-4 py-2">
+              <div>
+                {text.length > 0 && (
+                  <button onClick={() => setText('')} className="text-xs font-medium text-text-secondary hover:text-text-primary transition-colors cursor-pointer">
+                    Clear
+                  </button>
+                )}
               </div>
             </div>
-          )}
+          </div>
+
+          {/* Divider (desktop) */}
+          <div className="hidden lg:block w-px bg-border" />
+
+          {/* Translation column */}
+          <div className="flex flex-col min-h-[300px]">
+            <div className="flex items-center justify-between px-4 py-3 border-b border-border-subtle">
+              <span className="text-xs font-medium text-text-secondary uppercase tracking-widest">Translation</span>
+              {result?.processingTimeMs != null && !loading && (
+                <span className="text-xs text-text-tertiary lowercase">
+                  {result.processingTimeMs < 1000 ? `${result.processingTimeMs}ms` : `${(result.processingTimeMs / 1000).toFixed(1)}s`}
+                </span>
+              )}
+            </div>
+            <div className="flex-1 p-4 bg-surface-2 min-h-[240px]">
+              {loading && (
+                <div className="space-y-3">
+                  <Skeleton lines={4} />
+                  <p className="text-xs text-text-tertiary">Translating with NLLB-200...</p>
+                </div>
+              )}
+
+              {!loading && !result && !error && (
+                <div className="h-full flex items-center justify-center">
+                  <p className="text-text-secondary text-sm italic">Translation will appear here.</p>
+                </div>
+              )}
+
+              {error && (
+                <div className="flex flex-col justify-center h-full space-y-3">
+                  <p className="text-sm" style={{ color: 'var(--color-error-text)' }}>{error}</p>
+                  <div><Button variant="secondary" size="sm" onClick={handleTranslate}>Retry</Button></div>
+                </div>
+              )}
+
+              {result && !loading && (
+                <div className="flex flex-col h-full">
+                  <p className="text-base text-text-primary whitespace-pre-wrap leading-relaxed flex-1">
+                    {result.translation}
+                  </p>
+                  <div className="flex items-center gap-2 pt-3 mt-auto border-t border-border-subtle">
+                    <button
+                      onClick={() => copy(result.translation, setCopied)}
+                      className="inline-flex items-center gap-1 text-xs font-medium text-text-secondary hover:text-accent transition-colors cursor-pointer"
+                    >
+                      {copied ? (
+                        <><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polyline points="20 6 9 17 4 12" /></svg> Copied</>
+                      ) : (
+                        <><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2" /><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1" /></svg> Copy</>
+                      )}
+                    </button>
+                    <button onClick={() => {
+                      const blob = new Blob([result.translation], { type: 'text/plain' });
+                      const url = URL.createObjectURL(blob);
+                      const a = document.createElement('a');
+                      a.href = url; a.download = `vernacular-${srcLang}-${tgtLang}.txt`; a.click();
+                      URL.revokeObjectURL(url);
+                    }} className="inline-flex items-center gap-1 text-xs font-medium text-text-secondary hover:text-accent transition-colors cursor-pointer">
+                      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4" /><polyline points="7 10 12 15 17 10" /><line x1="12" y1="15" x2="12" y2="3" /></svg>
+                      .txt
+                    </button>
+                    {c && <Badge variant={c.variant}>{c.label}</Badge>}
+                    {lowConf && <span className="text-xs text-warning-text ml-auto">Low confidence</span>}
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
         </div>
       </div>
 
@@ -263,22 +280,27 @@ export default function TranslatePage() {
           </select>
         </div>
         <div className="flex gap-1">
-          {(['fast', 'balanced', 'accurate', 'rare-language'] as const).map((m) => (
+          {([
+            { key: 'fast' as const, label: 'Fast' },
+            { key: 'balanced' as const, label: 'Balanced' },
+            { key: 'accurate' as const, label: 'Accurate' },
+            { key: 'rare-language' as const, label: 'Rare' },
+          ]).map((m) => (
             <button
-              key={m}
-              onClick={() => { setMode(m); setOverrides({}); }}
-              className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-colors cursor-pointer h-9 ${
-                mode === m
-                  ? 'bg-accent text-accent-on shadow-sm'
+              key={m.key}
+              onClick={() => { setMode(m.key); setOverrides({}); }}
+              className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-colors cursor-pointer h-9 inline-flex items-center gap-1.5 ${
+                mode === m.key
+                  ? 'bg-accent-subtle border border-accent text-accent'
                   : 'bg-surface-1 border border-border text-text-secondary hover:bg-surface-2 hover:text-text-primary'
               }`}
             >
-              {m === 'fast' ? 'Fast' : m === 'balanced' ? 'Balanced' : m === 'accurate' ? 'Accurate' : 'Rare'}
+              {m.label}
             </button>
           ))}
         </div>
-        <div className="ml-auto">
-          <Button onClick={handleTranslate} disabled={loading || !text.trim()} loading={loading} size="sm">
+        <div className="w-full md:w-auto md:ml-auto flex justify-end">
+          <Button onClick={handleTranslate} disabled={loading || !text.trim()} loading={loading} size="lg" className="w-full md:max-w-[200px] rounded-lg disabled:border disabled:border-border">
             {loading ? 'Translating...' : 'Translate'}
           </Button>
         </div>
@@ -304,6 +326,20 @@ export default function TranslatePage() {
           </details>
         </div>
       )}
+
+      {/* Privacy notice */}
+      <div className="flex items-start gap-2.5 p-3.5 bg-success-bg border border-success-border rounded-xl">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="shrink-0 mt-0.5 text-success-text" aria-hidden="true">
+          <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
+          <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+        </svg>
+        <div>
+          <p className="text-sm font-semibold text-success-text">All processing happens on Vernacular&apos;s own servers.</p>
+          <p className="text-sm text-success-text opacity-80 mt-0.5">
+            Your audio and text are never sent to Google, Microsoft, OpenAI, AssemblyAI, Deepgram, or any other external service. Files are discarded after processing.
+          </p>
+        </div>
+      </div>
 
       {result && (
         <ResultTransparencyFooter info={{

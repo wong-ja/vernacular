@@ -9,17 +9,36 @@ const languages = [
 
 const steps = [
   {
-    icon: '\u2191',
+    icon: (
+      <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+        <polyline points="17 8 12 3 7 8"/>
+        <line x1="12" y1="3" x2="12" y2="15"/>
+      </svg>
+    ),
     title: 'Upload or paste',
     desc: 'Text, audio, or video. Common formats accepted.',
   },
   {
-    icon: '\u2696\uFE0F',
+    icon: (
+      <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+        <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+        <circle cx="9" cy="7" r="4"/>
+        <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
+        <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+      </svg>
+    ),
     title: 'Community glossary applied',
     desc: 'Terminology approved by speakers of your language.',
   },
   {
-    icon: '\u2193',
+    icon: (
+      <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+        <polyline points="7 10 12 15 17 10"/>
+        <line x1="12" y1="15" x2="12" y2="3"/>
+      </svg>
+    ),
     title: 'Review and download',
     desc: 'Transcript, translation, and captions in seconds to minutes.',
   },
@@ -29,14 +48,17 @@ const whys = [
   {
     title: 'Privacy by design',
     desc: 'Your audio never leaves our servers. We use open-source models, not Google or OpenAI.',
+    accent: 'border-[#9AE4E5]',
   },
   {
     title: 'Community-governed',
     desc: 'Language specialists and community organizations maintain the terminology, not engineers.',
+    accent: 'border-[#A8BEF7]',
   },
   {
     title: 'Honest about limits',
     desc: 'We show you which model processed your content, how confident it was, and where to get human review.',
+    accent: 'border-[#FBBEA2]',
   },
 ];
 
@@ -48,7 +70,7 @@ export default function HomePage() {
         <p className="text-sm text-text-secondary uppercase tracking-widest mb-4">
           Free &middot; Open source &middot; Community-governed
         </p>
-        <h1 className="text-4xl lg:text-4xl font-bold text-text-primary max-w-3xl mx-auto leading-tight">
+        <h1 className="font-heading text-4xl font-bold text-mardi-gras dark:text-text-primary max-w-3xl mx-auto leading-tight">
           Every voice, understood.
         </h1>
         <p className="text-lg text-text-secondary max-w-[600px] mx-auto mt-4 leading-relaxed">
@@ -66,29 +88,33 @@ export default function HomePage() {
         <p className="text-sm text-text-tertiary mt-4">No account required for basic use.</p>
       </section>
 
-      {/* Language coverage bar */}
-      <section className="border-y border-border overflow-hidden py-4">
+      {/* Language coverage bar — marquee */}
+      <section className="border-y border-border py-4">
         <p className="text-xs text-text-secondary uppercase tracking-wider text-center mb-3">
           Supporting 12 language pairs in Phase 1, growing with community contributions
         </p>
-        <div className="flex gap-8 overflow-x-auto px-6 scrollbar-hide">
-          {languages.concat(languages).map((lang, i) => (
-            <span key={i} className="text-sm text-text-secondary whitespace-nowrap shrink-0">
-              {lang}
-            </span>
-          ))}
+        <div className="marquee-wrapper">
+          <div className="marquee-track">
+            {languages.concat(languages).map((lang, i) => (
+              <span key={i} className="px-6 text-sm text-text-secondary whitespace-nowrap">
+                {lang}
+              </span>
+            ))}
+          </div>
         </div>
       </section>
 
       {/* How it works */}
       <section className="max-w-container mx-auto px-6 py-16">
-        <h2 className="text-xl font-bold text-text-primary text-center mb-10">How it works</h2>
+        <h2 className="font-heading text-2xl font-semibold text-text-primary text-center mb-3">How it works</h2>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
           {steps.map((step, i) => (
-            <div key={i} className="bg-surface-1 border border-border rounded-xl p-6 text-center">
-              <span className="text-2xl text-accent">{step.icon}</span>
-              <h3 className="text-lg font-semibold text-text-primary mt-4">{step.title}</h3>
-              <p className="text-sm text-text-secondary mt-2">{step.desc}</p>
+            <div key={i} className="bg-surface-1 border border-border rounded-xl px-6 py-8 text-center">
+              <span className="w-14 h-14 flex items-center justify-center rounded-full bg-accent-subtle text-accent mx-auto mb-5">
+                {step.icon}
+              </span>
+              <h3 className="font-heading text-lg font-semibold text-text-primary mb-2">{step.title}</h3>
+              <p className="text-base text-text-secondary">{step.desc}</p>
             </div>
           ))}
         </div>
@@ -96,47 +122,50 @@ export default function HomePage() {
 
       {/* Why Vernacular */}
       <section className="max-w-container mx-auto px-6 py-16">
-        <h2 className="text-xl font-bold text-text-primary text-center mb-10">Why Vernacular</h2>
+        <h2 className="font-heading text-2xl font-semibold text-text-primary text-center mb-3">Why Vernacular</h2>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           {whys.map((item, i) => (
-            <div key={i} className="bg-surface-1 border border-border rounded-xl p-6">
-              <h3 className="text-lg font-semibold text-text-primary">{item.title}</h3>
-              <p className="text-sm text-text-secondary mt-2 leading-relaxed">{item.desc}</p>
+            <div key={i} className={`bg-surface-1 border border-border border-l-[3px] ${item.accent} accent-card-left p-6`}>
+              <h3 className="font-heading text-lg font-semibold text-text-primary">{item.title}</h3>
+              <p className="text-base text-text-secondary mt-2 leading-relaxed">{item.desc}</p>
             </div>
           ))}
         </div>
       </section>
 
-      {/* Community */}
-      <section className="max-w-container mx-auto px-6 py-16 text-center border-t border-border">
-        <h2 className="text-xl font-bold text-text-primary">Built with communities, not just for them.</h2>
-        <p className="text-sm text-text-secondary mt-3 max-w-lg mx-auto">
-          Community health clinics, school districts, legal aid organizations, and civic nonprofits
-          create and maintain their own glossaries. Terminology stays under community control.
-        </p>
-        <div className="mt-6">
-          <a href="/orgs/signup">
-            <Button variant="secondary">Create an org account — it&apos;s free</Button>
-          </a>
+      {/* Built with communities — Picasso yellow */}
+      <section className="bg-picasso dark:bg-[#1A1A08] px-6 py-20 text-center">
+        <div className="max-w-container mx-auto">
+          <h2 className="font-heading text-2xl font-semibold text-mardi-gras dark:text-mardi-gras">Built with communities, not just for them.</h2>
+          <p className="text-base text-mardi-gras dark:text-[#E8B0F0] mt-3 max-w-lg mx-auto">
+            Community health clinics, school districts, legal aid organizations, and civic nonprofits
+            create and maintain their own glossaries. Terminology stays under community control.
+          </p>
+          <div className="mt-6">
+            <a href="/orgs/signup">
+              <Button variant="secondary" size="lg" className="border-mardi-gras text-mardi-gras dark:border-[#E8B0F0] dark:text-[#E8B0F0]">
+                Create an org account &mdash; it&apos;s free
+              </Button>
+            </a>
+          </div>
         </div>
       </section>
 
-      {/* Footer */}
-      <footer className="border-t border-border py-10">
-        <div className="max-w-container mx-auto px-6">
+      {/* Footer — Forest green always-dark */}
+      <footer className="bg-forest px-6 py-12 pb-8">
+        <div className="max-w-container mx-auto">
           <div className="flex flex-col md:flex-row items-center justify-between gap-4">
-            <span className="text-sm font-semibold text-text-primary">Vernacular</span>
-            <nav className="flex gap-6 text-xs text-text-secondary">
-              <a href="#" className="hover:text-text-primary transition-colors">Privacy</a>
-              <a href="#" className="hover:text-text-primary transition-colors">Governance</a>
-              <a href="#" className="hover:text-text-primary transition-colors">GitHub</a>
-              {/* <a href="#" className="hover:text-text-primary transition-colors">Assembly Code</a> */}
+            <span className="font-heading text-lg font-semibold text-[#F0EDE6]">Vernacular</span>
+            <nav className="flex gap-6 text-sm" style={{ color: 'rgba(240, 237, 230, 0.7)' }}>
+              <a href="#" className="hover:text-white transition-colors">Privacy</a>
+              <a href="#" className="hover:text-white transition-colors">Governance</a>
+              <a href="#" className="hover:text-white transition-colors">GitHub</a>
             </nav>
           </div>
-          <p className="text-xs text-text-tertiary text-center mt-6">
+          <p className="text-sm text-center mt-6" style={{ color: 'rgba(240, 237, 230, 0.5)' }}>
             Built with open-source models. No audio or text is sent to Google, Microsoft, or OpenAI.
           </p>
-          <p className="text-xs text-text-tertiary text-center mt-1">
+          <p className="text-sm text-center mt-1" style={{ color: 'rgba(240, 237, 230, 0.5)' }}>
             Some models used are CC-BY-NC 4.0. Vernacular is non-commercial — this is permitted.
           </p>
         </div>
