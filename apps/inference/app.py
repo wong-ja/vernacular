@@ -142,6 +142,7 @@ def translate(text, source_lang, target_lang):
         truncation=True,
         max_length=1024,
     )
+    inputs = {k: v.to(model.device) for k, v in inputs.items()}
     forced_bos = tokenizer.convert_tokens_to_ids(target_lang)
     if forced_bos == tokenizer.unk_token_id:
         raise gr.Error(f"Unsupported target language code: {target_lang}")
