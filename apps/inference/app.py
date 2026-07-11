@@ -142,8 +142,8 @@ def translate(text, source_lang, target_lang):
         truncation=True,
         max_length=1024,
     )
-    forced_bos = tokenizer.lang_code_to_id.get(target_lang)
-    if forced_bos is None:
+    forced_bos = tokenizer.convert_tokens_to_ids(target_lang)
+    if forced_bos == tokenizer.unk_token_id:
         raise gr.Error(f"Unsupported target language code: {target_lang}")
 
     generated = model.generate(
