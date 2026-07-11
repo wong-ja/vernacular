@@ -3,7 +3,7 @@ export function getInferenceBaseUrl(): string {
   catch { return 'http://localhost:8000'; }
 }
 
-export function readJsonBody(req: any): Promise<any> {
+export async function readJsonBody(req: any): Promise<any> {
   if (req.body) return req.body;
   const raw = req.rawBody || req.bodyRaw;
   if (raw && typeof raw === 'string') { try { return JSON.parse(raw); } catch { return {}; } }
