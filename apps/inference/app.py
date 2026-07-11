@@ -12,7 +12,28 @@ import re
 # Monkey-patches for Gradio 4.44.1 + ZeroGPU bugs
 # ---------------------------------------------------------------------------
 
-# Patch: gradio_client JSON schema — bool values crash schema parser
+# Patch 1: Starlette 1.0+ changed TemplateResponse to (request, name, context)
+# but Gradio 4.44.1 calls it with the old (name, context) signature.
+# This causes the template name to receive a dict instead of a string,
+# crashing Jinja2's cache key computation with "unhashable type: 'dict'".
+import starlette.templating as _st
+
+_orig_tr = _st.Jinja2Templates.TemplateResponse
+
+
+def _patched_tr(self, *args, **kwargs):
+    if len(args) >= 2 and isinstance(args[0], str) and not isinstance(args[1], str):
+        name = args[0]
+        context = args[1] if isinstance(args[1], dict) else {}
+        request = context.get("request")
+        if request is not None and not isinstance(request, str):
+            return _orig_tr(self, request, name, context, *args[2:], **kwargs)
+    return _orig_tr(self, *args, **kwargs)
+
+
+_st.Jinja2Templates.TemplateResponse = _patched_tr
+
+# Patch 2: gradio_client JSON schema — bool values crash schema parser
 import gradio_client.utils as _gc_utils
 
 _orig_json_schema_to_python_type = _gc_utils._json_schema_to_python_type
