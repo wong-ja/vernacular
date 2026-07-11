@@ -135,9 +135,9 @@ def translate(text, source_lang, target_lang):
     model = _translation_cache["model"]
 
     start = time.time()
+    tokenizer.src_lang = source_lang
     inputs = tokenizer(
         text,
-        src_lang=source_lang,
         return_tensors="pt",
         truncation=True,
         max_length=1024,
