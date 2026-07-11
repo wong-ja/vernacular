@@ -67,8 +67,8 @@ export async function callTranslate(req: TranslateRequest): Promise<TranslateRes
   ]);
   return {
     translation: (data[0] as string) || '',
-    modelUsed: (data[1] as string) || '',
-    processingTimeMs: (data[2] as number) || 0,
+    modelUsed: req.modelId || 'NLLB-200',
+    processingTimeMs: (data[1] as number) || 0,
   };
 }
 
