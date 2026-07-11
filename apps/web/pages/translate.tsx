@@ -17,13 +17,13 @@ const DOMAIN_OPTIONS = [
 ];
 
 const CONF = {
-  high: { label: 'High confidence', variant: 'high-confidence' as const, msg: 'likely accurate' },
-  medium: { label: 'Medium confidence', variant: 'medium-confidence' as const, msg: 'review recommended' },
-  low: { label: 'Low confidence', variant: 'low-confidence' as const, msg: 'human review strongly recommended' },
+  high: { label: 'High confidence', variant: 'high-confidence' as const },
+  medium: { label: 'Medium confidence', variant: 'medium-confidence' as const },
+  low: { label: 'Low confidence', variant: 'low-confidence' as const },
 };
 
 function conf(score: number | null | undefined) {
-  if (score == null) return { ...CONF.high, msg: '' };
+  if (score == null) return null;
   if (score >= 0.85) return CONF.high;
   if (score >= 0.7) return CONF.medium;
   return CONF.low;
@@ -69,7 +69,7 @@ export default function TranslatePage() {
     try { localStorage.setItem(LS_REV, String(revOn)); } catch { /* */ }
   }, [revOn]);
 
-  const translate = useCallback(async (s: string, t: string, txt: string): Promise<TranslationResult> => {
+  const doTranslate = useCallback(async (s: string, t: string, txt: string): Promise<TranslationResult> => {
     const res = await fetch('/api/translate', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -94,11 +94,11 @@ export default function TranslatePage() {
     setRevError('');
     setRevLoading(false);
     try {
-      const data = await translate(srcLang, tgtLang, text);
+      const data = await doTranslate(srcLang, tgtLang, text);
       setResult(data);
       if (revOn && data.translation) {
         setRevLoading(true);
-        translate(tgtLang, srcLang, data.translation)
+        doTranslate(tgtLang, srcLang, data.translation)
           .then((r) => { setRevResult(r.translation); setRevLoading(false); })
           .catch((e) => { setRevError(e instanceof Error ? e.message : 'Reverse failed'); setRevLoading(false); });
       }
@@ -121,133 +121,158 @@ export default function TranslatePage() {
     try { await navigator.clipboard.writeText(txt); set(true); setTimeout(() => set(false), 2000); } catch { /* */ }
   }, []);
 
-  function download() {
-    if (!result) return;
-    const blob = new Blob([result.translation], { type: 'text/plain' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `vernacular-${srcLang}-${tgtLang}.txt`;
-    a.click();
-    URL.revokeObjectURL(url);
-  }
-
   const c = result ? conf(result.confidence) : null;
+  const lowConf = c === CONF.low;
 
   return (
-    <div className="max-w-container mx-auto px-6 py-8 space-y-5">
-      {/* Language bar — compact row */}
-      <div className="flex items-end gap-2 flex-wrap">
-        <div className="w-48">
-          <LanguageSelector value={srcLang} onChange={(v) => { setPair([v, tgtLang]); setResult(null); setError(''); }} label="Source" />
+    <div className="max-w-container mx-auto px-6 py-10 space-y-6">
+
+      {/* Language selection card */}
+      <div className="bg-surface-1 border border-border rounded-xl p-5">
+        <div className="flex items-end gap-3 flex-wrap">
+          <div className="w-52">
+            <LanguageSelector value={srcLang} onChange={(v) => { setPair([v, tgtLang]); setResult(null); setError(''); }} label="Source" />
+          </div>
+          <button
+            onClick={flip}
+            className="shrink-0 mb-0.5 w-10 h-10 flex items-center justify-center rounded-lg border border-border bg-surface-2 hover:bg-accent-subtle hover:border-accent transition-colors cursor-pointer text-text-secondary hover:text-accent"
+            title="Swap languages"
+          >
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M7 16l-4-4 4-4" /><path d="M3 12h18" /><path d="M17 8l4 4-4 4" />
+            </svg>
+          </button>
+          <div className="w-52">
+            <LanguageSelector value={tgtLang} onChange={(v) => { setPair([srcLang, v]); setResult(null); setError(''); }} label="Target" />
+          </div>
+          <label className="flex items-center gap-1.5 shrink-0 mb-0.5 h-10 px-3 rounded-lg border border-border bg-surface-2 cursor-pointer select-none hover:border-accent transition-colors text-sm text-text-secondary">
+            <input type="checkbox" checked={revOn} onChange={(e) => setRevOn(e.target.checked)} className="accent-accent w-3.5 h-3.5" />
+            Reverse
+          </label>
         </div>
-        <button
-          onClick={flip}
-          className="shrink-0 mb-0.5 w-9 h-9 flex items-center justify-center rounded-md border border-border bg-surface-2 hover:bg-surface-3 hover:border-accent transition-colors cursor-pointer text-text-secondary hover:text-accent"
-          title="Swap languages"
-        >
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-            <path d="M7 16l-4-4 4-4" /><path d="M3 12h18" /><path d="M17 8l4 4-4 4" />
-          </svg>
-        </button>
-        <div className="w-48">
-          <LanguageSelector value={tgtLang} onChange={(v) => { setPair([srcLang, v]); setResult(null); setError(''); }} label="Target" />
-        </div>
-        <label className="flex items-center gap-1.5 shrink-0 mb-0.5 h-9 px-3 rounded-md border border-border bg-surface-2 cursor-pointer select-none hover:border-accent transition-colors text-sm text-text-secondary">
-          <input type="checkbox" checked={revOn} onChange={(e) => setRevOn(e.target.checked)} className="accent-accent w-3.5 h-3.5" />
-          Reverse
-        </label>
       </div>
 
       {/* I/O columns */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
         {/* Input */}
-        <div className="space-y-2">
+        <div className="bg-surface-1 border border-border rounded-xl p-5 space-y-3">
+          <div className="flex items-center justify-between">
+            <h2 className="text-sm font-semibold text-text-primary">Source text</h2>
+            <span className="text-xs text-text-tertiary">{text.length} / 5,000</span>
+          </div>
           <Textarea
             value={text}
             onChange={(e) => setText(e.target.value)}
             placeholder="Paste or type text to translate..."
-            rows={10}
-            className="min-h-[300px]"
+            rows={8}
+            className="min-h-[240px] border-0 bg-surface-2 rounded-lg resize-y"
           />
-          <div className="flex items-center justify-between text-xs text-text-tertiary">
-            <span>{text.length} / 5,000</span>
-            {text.length > 0 && (
-              <button onClick={() => setText('')} className="text-text-secondary hover:text-text-primary transition-colors cursor-pointer font-medium">
-                Clear
-              </button>
-            )}
-          </div>
+          {text.length > 0 && (
+            <button onClick={() => setText('')} className="text-xs font-medium text-text-secondary hover:text-text-primary transition-colors cursor-pointer">
+              Clear text
+            </button>
+          )}
         </div>
 
         {/* Output */}
-        <div className="min-h-[300px] bg-surface-1 border border-border rounded-lg p-5 flex flex-col">
-          {loading && (
-            <div className="space-y-3 flex-1">
-              <Skeleton lines={4} />
-              <p className="text-xs text-text-tertiary mt-2">Translating with NLLB-200...</p>
-            </div>
-          )}
+        <div className="bg-surface-1 border border-border rounded-xl p-5 space-y-3">
+          <div className="flex items-center justify-between">
+            <h2 className="text-sm font-semibold text-text-primary">Translation</h2>
+            {result && !loading && (
+              <span className="text-xs text-text-tertiary font-mono">
+                {result.processingTimeMs != null && (result.processingTimeMs < 1000 ? `${result.processingTimeMs}ms` : `${(result.processingTimeMs / 1000).toFixed(1)}s`)}
+              </span>
+            )}
+          </div>
 
-          {!loading && !result && !error && (
-            <div className="flex-1 flex items-center justify-center">
-              <p className="text-text-tertiary text-sm">Translation will appear here.</p>
-            </div>
-          )}
-
-          {error && (
-            <div className="space-y-4 flex-1 flex flex-col justify-center">
-              <div className="p-4 rounded-md text-sm text-error-text" style={{ backgroundColor: 'var(--color-error-bg)', border: '1px solid var(--color-error)' }}>
-                {error}
+          <div className="min-h-[240px] flex flex-col">
+            {loading && (
+              <div className="space-y-3 flex-1 flex flex-col justify-center">
+                <Skeleton lines={4} />
+                <p className="text-xs text-text-tertiary">Translating with NLLB-200...</p>
               </div>
-              <div><Button variant="secondary" size="sm" onClick={handleTranslate}>Try again</Button></div>
-            </div>
-          )}
+            )}
 
-          {result && !loading && (
-            <div className="space-y-4 flex-1 flex flex-col">
-              <p className="text-base text-text-primary whitespace-pre-wrap leading-relaxed flex-1">
-                {result.translation}
-              </p>
-
-              <div className="flex items-center gap-2 pt-3 border-t border-border-subtle flex-wrap">
-                <button
-                  onClick={() => copy(result.translation, setCopied)}
-                  className="inline-flex items-center gap-1.5 text-xs font-medium text-text-secondary hover:text-text-primary bg-surface-2 hover:bg-accent-subtle rounded-md px-3 py-1.5 transition-colors cursor-pointer"
-                >
-                  {copied ? (
-                    <><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polyline points="20 6 9 17 4 12" /></svg> Copied</>
-                  ) : (
-                    <><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2" /><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1" /></svg> Copy</>
-                  )}
-                </button>
-                <button onClick={download} className="inline-flex items-center gap-1.5 text-xs font-medium text-text-secondary hover:text-text-primary bg-surface-2 hover:bg-accent-subtle rounded-md px-3 py-1.5 transition-colors cursor-pointer">
-                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4" /><polyline points="7 10 12 15 17 10" /><line x1="12" y1="15" x2="12" y2="3" /></svg>
-                  Download
-                </button>
-                {c && <Badge variant={c.variant}>{c.label}</Badge>}
-                {result.processingTimeMs != null && (
-                  <span className="text-xs text-text-tertiary font-mono">
-                    {result.processingTimeMs < 1000 ? `${result.processingTimeMs}ms` : `${(result.processingTimeMs / 1000).toFixed(1)}s`}
-                  </span>
-                )}
+            {!loading && !result && !error && (
+              <div className="flex-1 flex items-center justify-center">
+                <p className="text-text-tertiary text-sm">Translation will appear here.</p>
               </div>
-              {c?.msg && <p className="text-xs text-warning-text">{c.msg}</p>}
-            </div>
-          )}
+            )}
+
+            {error && (
+              <div className="space-y-3 flex-1 flex flex-col justify-center">
+                <div className="p-4 rounded-lg text-sm" style={{ backgroundColor: 'var(--color-error-bg)', color: 'var(--color-error-text)', border: '1px solid var(--color-error)' }}>
+                  {error}
+                </div>
+                <div><Button variant="secondary" size="sm" onClick={handleTranslate}>Try again</Button></div>
+              </div>
+            )}
+
+            {result && !loading && (
+              <div className="flex-1 flex flex-col justify-between space-y-4">
+                <p className="text-base text-text-primary whitespace-pre-wrap leading-relaxed">
+                  {result.translation}
+                </p>
+
+                <div className="flex items-center gap-2 pt-3 border-t border-border-subtle flex-wrap">
+                  <button
+                    onClick={() => copy(result.translation, setCopied)}
+                    className="inline-flex items-center gap-1.5 text-xs font-medium text-text-secondary hover:text-text-primary bg-surface-2 hover:bg-accent-subtle rounded-md px-3 py-1.5 transition-colors cursor-pointer"
+                  >
+                    {copied ? (
+                      <><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polyline points="20 6 9 17 4 12" /></svg> Copied</>
+                    ) : (
+                      <><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2" /><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1" /></svg> Copy</>
+                    )}
+                  </button>
+                  <button onClick={() => {
+                    const blob = new Blob([result.translation], { type: 'text/plain' });
+                    const url = URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = url; a.download = `vernacular-${srcLang}-${tgtLang}.txt`; a.click();
+                    URL.revokeObjectURL(url);
+                  }} className="inline-flex items-center gap-1.5 text-xs font-medium text-text-secondary hover:text-text-primary bg-surface-2 hover:bg-accent-subtle rounded-md px-3 py-1.5 transition-colors cursor-pointer">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4" /><polyline points="7 10 12 15 17 10" /><line x1="12" y1="15" x2="12" y2="3" /></svg>
+                    Download
+                  </button>
+                  {c && <Badge variant={c.variant}>{c.label}</Badge>}
+                </div>
+                {lowConf && <p className="text-xs text-warning-text">Low confidence &mdash; consider having this reviewed by a fluent speaker.</p>}
+              </div>
+            )}
+          </div>
         </div>
       </div>
 
+      {/* Glossary */}
+      {result && result.glossaryOverrides.length > 0 && (
+        <div className="bg-surface-1 border border-border rounded-xl p-5">
+          <details className="text-sm">
+            <summary className="text-text-secondary hover:text-text-primary cursor-pointer font-medium">
+              {result.glossaryOverrides.length} community term{result.glossaryOverrides.length > 1 ? 's' : ''} applied
+            </summary>
+            <div className="mt-3 space-y-1">
+              {result.glossaryOverrides.map((o, i) => (
+                <div key={i} className="text-xs text-text-secondary flex items-center gap-2 bg-surface-2 rounded-md px-3 py-1.5">
+                  <span className="line-through text-text-tertiary">{o.baseModelTerm}</span>
+                  <span>&rarr;</span>
+                  <span className="font-medium text-text-primary">{o.overrideTerm}</span>
+                  <span className="text-text-tertiary ml-auto">({o.domain})</span>
+                </div>
+              ))}
+            </div>
+          </details>
+        </div>
+      )}
+
       {/* Reverse */}
       {revOn && (revResult || revLoading || revError) && (
-        <div className="bg-surface-1 border border-border rounded-lg p-5 space-y-3">
-          <div className="flex items-center justify-between">
-            <span className="text-sm font-medium text-text-secondary">
-              Reverse translation <span className="text-text-tertiary font-normal">({tgtLang} &rarr; {srcLang})</span>
-            </span>
-          </div>
+        <div className="bg-surface-1 border border-border rounded-xl p-5 space-y-3">
+          <h3 className="text-sm font-medium text-text-secondary">
+            Reverse translation <span className="text-text-tertiary font-normal">({tgtLang} &rarr; {srcLang})</span>
+          </h3>
           {revLoading && <div className="space-y-2"><Skeleton lines={2} /><p className="text-xs text-text-tertiary">Translating back...</p></div>}
-          {revError && <p className="text-sm text-error-text">{revError}</p>}
+          {revError && <p className="text-sm" style={{ color: 'var(--color-error-text)' }}>{revError}</p>}
           {revResult && !revLoading && (
             <>
               <p className="text-base text-text-primary whitespace-pre-wrap leading-relaxed">{revResult}</p>
@@ -259,34 +284,17 @@ export default function TranslatePage() {
         </div>
       )}
 
-      {/* Glossary */}
-      {result && result.glossaryOverrides.length > 0 && (
-        <details className="text-sm">
-          <summary className="text-text-secondary hover:text-text-primary cursor-pointer font-medium">
-            {result.glossaryOverrides.length} community term{result.glossaryOverrides.length > 1 ? 's' : ''} applied
-          </summary>
-          <div className="mt-2 space-y-1 pl-4">
-            {result.glossaryOverrides.map((o, i) => (
-              <div key={i} className="text-xs text-text-secondary flex items-center gap-2 bg-surface-2 rounded px-2 py-1">
-                <span className="line-through text-text-tertiary">{o.baseModelTerm}</span>
-                <span>&rarr;</span>
-                <span className="font-medium text-text-primary">{o.overrideTerm}</span>
-                <span className="text-text-tertiary ml-auto">({o.domain})</span>
-              </div>
-            ))}
-          </div>
-        </details>
-      )}
-
       {/* Domain + Model */}
-      <div className="space-y-4">
-        <div>
-          <label className="block text-sm font-medium text-text-secondary mb-1">Domain</label>
-          <select value={domain} onChange={(e) => setDomain(e.target.value)}
-            className="bg-surface-2 border border-border rounded-md px-[14px] py-[10px] text-sm text-text-primary focus:border-accent focus:outline-none transition-colors"
-          >
-            {DOMAIN_OPTIONS.map((d) => <option key={d.value} value={d.value}>{d.label}</option>)}
-          </select>
+      <div className="bg-surface-1 border border-border rounded-xl p-5 space-y-4">
+        <div className="flex items-center gap-4">
+          <div>
+            <label className="block text-xs font-medium text-text-secondary mb-1">Domain</label>
+            <select value={domain} onChange={(e) => setDomain(e.target.value)}
+              className="bg-surface-2 border border-border rounded-lg px-3 py-2 text-sm text-text-primary focus:border-accent focus:outline-none transition-colors"
+            >
+              {DOMAIN_OPTIONS.map((d) => <option key={d.value} value={d.value}>{d.label}</option>)}
+            </select>
+          </div>
         </div>
         <ModelSelector sourceLang={srcLang} targetLang={tgtLang} charCount={text.length}
           onModeChange={(m) => setMode(m)} onModelOverride={(o) => setOverrides(o)} />

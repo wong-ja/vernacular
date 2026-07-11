@@ -6,19 +6,19 @@
 
 @layer base {
   :root {
-    --color-base: #F7F0E7;
+    --color-base: #F7F5F0;
     --color-surface-1: #FFFFFF;
-    --color-surface-2: #FFFBC8;
-    --color-surface-3: #F7F0E7;
-    --color-border: #D8D4C8;
-    --color-border-subtle: #EDE8DE;
+    --color-surface-2: #F2F0EC;
+    --color-surface-3: #E8E6E2;
+    --color-border: #D8D6D0;
+    --color-border-subtle: #ECEAE6;
     --color-text-primary: #121212;
     --color-text-secondary: #6A6F86;
     --color-text-tertiary: #9C9EB0;
     --color-accent: #9CB4FF;
     --color-accent-hover: #B0C4FF;
     --color-accent-subtle: #E8EDFF;
-    --color-accent-on: #121212;
+    --color-accent-on: #1A1A2E;
     --color-success: #9AE4E5;
     --color-success-text: #1A6B6B;
     --color-success-bg: #E8FFFE;
@@ -28,7 +28,7 @@
     --color-error: #FFDDE5;
     --color-error-text: #CC3360;
     --color-error-bg: #FFF0F4;
-    --color-info: #9CB4FF;
+    --color-info: #E8EDFF;
     --color-info-text: #3E4773;
     --color-info-bg: #E8EDFF;
     --shadow-sm: 0 1px 3px rgba(0,0,0,0.06);
@@ -37,19 +37,19 @@
   }
 
   .dark {
-    --color-base: #3E4773;
-    --color-surface-1: #2D3557;
-    --color-surface-2: #252D4A;
-    --color-surface-3: #1E2440;
-    --color-border: #4A5280;
-    --color-border-subtle: #363E66;
-    --color-text-primary: #F7F0E7;
+    --color-base: #1A1A2E;
+    --color-surface-1: #242440;
+    --color-surface-2: #2A2A4A;
+    --color-surface-3: #30305A;
+    --color-border: #3A3A5A;
+    --color-border-subtle: #2E2E4E;
+    --color-text-primary: #F0EDE8;
     --color-text-secondary: #9CB4FF;
     --color-text-tertiary: #6A6F86;
     --color-accent: #9CB4FF;
     --color-accent-hover: #B0C4FF;
-    --color-accent-subtle: #2D3557;
-    --color-accent-on: #121212;
+    --color-accent-subtle: #2A2A4A;
+    --color-accent-on: #F0EDE8;
     --color-success: #9AE4E5;
     --color-success-text: #9AE4E5;
     --color-success-bg: #1A3A3A;
@@ -59,9 +59,9 @@
     --color-error: #FFDDE5;
     --color-error-text: #FFDDE5;
     --color-error-bg: #3A1A2A;
-    --color-info: #9CB4FF;
+    --color-info: #3E4773;
     --color-info-text: #9CB4FF;
-    --color-info-bg: #1E2440;
+    --color-info-bg: #242440;
     --shadow-sm: 0 1px 3px rgba(0,0,0,0.4);
     --shadow-md: 0 4px 12px rgba(0,0,0,0.5);
     --shadow-lg: 0 8px 24px rgba(0,0,0,0.6);
