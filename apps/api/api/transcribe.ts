@@ -1,7 +1,5 @@
 import { getInferenceBaseUrl, sendError } from './inference';
 
-export const config = { api: { bodyParser: false } };
-
 function readFormData(req: any): Promise<Buffer> {
   return new Promise((resolve, reject) => {
     const chunks: Buffer[] = [];
