@@ -29,26 +29,28 @@ async function gradioPredict(apiName: string, data: unknown[]): Promise<unknown[
   throw new Error('Inference timed out');
 }
 
+function getPath(req: any): string {
+  const h = req.headers['x-vercel-request-url'];
+  if (h && typeof h === 'string' && h.startsWith('http')) {
+    try { return new URL(h).pathname; } catch { /* fall through */ }
+  }
+  return (req.url || '').split('?')[0];
+}
+
 export default async function handler(req: any, res: any) {
-  res.setHeader?.('Content-Type', 'application/json');
   try {
-    const originalUrl = (req.headers['x-vercel-request-url'] || req.url || '') as string;
-    const path = originalUrl.startsWith('http') ? new URL(originalUrl).pathname : req.url;
+    const path = getPath(req);
+    res.setHeader('Content-Type', 'application/json');
 
     if (req.method === 'GET' && (path === '/health' || path === '/api/health')) {
-      return res.end?.(JSON.stringify({ status: 'ok', service: 'api', version: '0.1.0' }));
+      return res.end(JSON.stringify({ status: 'ok', service: 'api', version: '0.1.0' }));
     }
 
     if (req.method === 'POST' && (path === '/api/translate' || path === '/translate')) {
-      let body = '';
-      await new Promise<void>((resolve) => {
-        req.on('data', (chunk: string) => { body += chunk; });
-        req.on('end', () => resolve());
-      });
-      const { text, sourceLang, targetLang } = JSON.parse(body);
+      const { text, sourceLang, targetLang } = req.body || {};
       if (!text || !sourceLang || !targetLang) {
         res.statusCode = 400;
-        return res.end?.(JSON.stringify({ status: 'error', message: 'text, sourceLang, and targetLang required' }));
+        return res.end(JSON.stringify({ status: 'error', message: 'text, sourceLang, and targetLang required' }));
       }
       const data = await gradioPredict('translate', [text, sourceLang, targetLang]);
       const result = {
@@ -57,13 +59,26 @@ export default async function handler(req: any, res: any) {
         processingTimeMs: (data[1] as number) || 0,
       };
       res.statusCode = 200;
-      return res.end?.(JSON.stringify({ status: 'ok', data: { ...result, glossaryOverrides: [], confidence: null, needsReview: false, sourceLang, targetLang, translationModelId: 'NLLB-200', mode: 'balanced', processingTimeMs: result.processingTimeMs } }));
+      return res.end(JSON.stringify({
+        status: 'ok',
+        data: {
+          ...result,
+          glossaryOverrides: [],
+          confidence: null,
+          needsReview: false,
+          sourceLang,
+          targetLang,
+          translationModelId: 'NLLB-200',
+          mode: 'balanced',
+        },
+      }));
     }
 
     res.statusCode = 404;
-    res.end?.(JSON.stringify({ status: 'error', message: `Not found: ${req.method} ${path}` }));
+    res.end(JSON.stringify({ status: 'error', message: `Not found: ${req.method} ${path}` }));
   } catch (err: any) {
     res.statusCode = 500;
-    res.end?.(JSON.stringify({ status: 'error', message: err?.message || 'Internal error' }));
+    res.setHeader('Content-Type', 'application/json');
+    res.end(JSON.stringify({ status: 'error', message: err?.message || 'Internal error', stack: err?.stack }));
   }
 }
