@@ -26,7 +26,7 @@ export default async function handler(req: any, res: any) {
     const submitRes = await fetch(`${base}/api/predict`, {
       method: 'POST',
       headers: { 'Content-Type': contentType },
-      body,
+      body as unknown as BodyInit,
     });
 
     if (!submitRes.ok) {
