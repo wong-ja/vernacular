@@ -1,4 +1,4 @@
-import { getInferenceBaseUrl, sendError } from './inference';
+import { getInferenceBaseUrl, sendError } from './inference.js';
 
 function readFormData(req: any): Promise<Buffer> {
   return new Promise((resolve, reject) => {

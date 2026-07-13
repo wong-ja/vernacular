@@ -1,4 +1,4 @@
-import { getInferenceBaseUrl, readJsonBody, sendJson, sendError } from './inference';
+import { getInferenceBaseUrl, readJsonBody, sendJson, sendError } from './inference.js';
 
 export default async function handler(req: any, res: any) {
   res.setHeader('Content-Type', 'application/json');
