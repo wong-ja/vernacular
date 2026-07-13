@@ -36,3 +36,38 @@ export function sendJson(res: any, code: number, data: Record<string, unknown>):
 export function sendError(res: any, code: number, message: string, extra?: Record<string, unknown>): void {
   sendJson(res, code, { status: 'error', message, ...extra });
 }
+
+/** Call a Gradio 4.x function via the event-driven API and return its outputs. */
+export async function gradioCall(baseUrl: string, fnName: string, args: unknown[]): Promise<unknown[]> {
+  const submitRes = await fetch(`${baseUrl}/gradio_api/call/${fnName}`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ data: args }),
+  });
+  if (!submitRes.ok) {
+    const txt = await submitRes.text().catch(() => '');
+    throw new Error(`Gradio submit error (${submitRes.status}): ${txt.slice(0, 300)}`);
+  }
+  const submitResult = await submitRes.json() as Record<string, unknown>;
+  if (!submitResult.event_id) {
+    const direct = (submitResult.data as unknown[]) || [];
+    return direct;
+  }
+  const eventId = submitResult.event_id as string;
+  for (let i = 0; i < 180; i++) {
+    await new Promise((r) => setTimeout(r, 1000));
+    const pollRes = await fetch(`${baseUrl}/gradio_api/call/${fnName}/${eventId}`);
+    if (!pollRes.ok) continue;
+    const text = await pollRes.text();
+    let resultData: unknown[] | null = null;
+    let complete = false;
+    for (const ln of text.split('\n')) {
+      if (ln.startsWith('event: complete')) complete = true;
+      if (ln.startsWith('data: ')) {
+        try { resultData = JSON.parse(ln.slice(6)); } catch { /* skip */ }
+      }
+    }
+    if (complete && resultData) return resultData;
+  }
+  throw new Error('Gradio inference timed out');
+}
