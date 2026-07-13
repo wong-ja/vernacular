@@ -14,7 +14,7 @@ export type SupportedLanguage = string;
 
 import type { ModelMode } from './model-registry.js';
 
-export type TranslationDomain = 'medical' | 'legal' | 'education' | 'civic' | 'general';
+export type TranslationDomain = 'medical' | 'legal' | 'education' | 'civic' | 'general' | 'community' | 'humanitarian' | 'religious';
 
 export interface ModelOverrides {
   asrModelId?: string;

@@ -15,6 +15,9 @@ const DOMAIN_OPTIONS = [
   { value: 'legal', label: 'Legal' },
   { value: 'education', label: 'Education' },
   { value: 'civic', label: 'Civic' },
+  { value: 'community', label: 'Community' },
+  { value: 'humanitarian', label: 'Humanitarian' },
+  { value: 'religious', label: 'Religious / Faith' },
 ];
 
 const CONF = {
@@ -195,6 +198,11 @@ export default function TranslatePage() {
                   <input type="checkbox" checked={revOn} onChange={(e) => setRevOn(e.target.checked)} className="accent-accent w-3.5 h-3.5" />
                   Reverse
                 </label>
+                <select value={domain} onChange={(e) => setDomain(e.target.value)}
+                  className="shrink-0 mb-0.5 h-10 bg-surface-2 border border-border rounded-lg px-3 py-1.5 text-sm text-text-primary focus:border-accent focus:outline-none transition-colors cursor-pointer"
+                >
+                  {DOMAIN_OPTIONS.map((d) => <option key={d.value} value={d.value}>{d.label}</option>)}
+                </select>
               </div>
 
               <div className="flex-1 min-w-0 lg:border-l lg:border-border lg:pl-4">
@@ -371,15 +379,8 @@ export default function TranslatePage() {
             </div>
           )}
 
-          {/* Row 3: Domain + Translate */}
+          {/* Row 3: Translate */}
           <div className="flex items-center gap-3 flex-wrap">
-            <div>
-              <select value={domain} onChange={(e) => setDomain(e.target.value)}
-                className="bg-surface-1 border border-border rounded-lg px-3 py-2 text-sm text-text-primary focus:border-accent focus:outline-none transition-colors h-9"
-              >
-                {DOMAIN_OPTIONS.map((d) => <option key={d.value} value={d.value}>{d.label}</option>)}
-              </select>
-            </div>
             <div className="flex items-center gap-2 ml-auto">
               <button
                 onClick={() => setHistoryOpen(!historyOpen)}
