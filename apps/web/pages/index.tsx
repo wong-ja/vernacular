@@ -48,17 +48,17 @@ const whys = [
   {
     title: 'Privacy by design',
     desc: 'Your audio never leaves our servers. We use open-source models, not Google or OpenAI.',
-    accent: 'border-[#9AE4E5]',
+    accent: 'border-brand-water-leaf',
   },
   {
     title: 'Community-governed',
     desc: 'Language specialists and community organizations maintain the terminology, not engineers.',
-    accent: 'border-[#A8BEF7]',
+    accent: 'border-brand-periwinkle',
   },
   {
     title: 'Honest about limits',
     desc: 'We show you which model processed your content, how confident it was, and where to get human review.',
-    accent: 'border-[#FBBEA2]',
+    accent: 'border-brand-rose-bud',
   },
 ];
 
@@ -70,7 +70,7 @@ export default function HomePage() {
         <p className="text-sm text-text-secondary uppercase tracking-widest mb-4">
           Free &middot; Open source &middot; Community-governed
         </p>
-        <h1 className="font-heading text-4xl font-bold text-mardi-gras dark:text-text-primary max-w-3xl mx-auto leading-tight">
+        <h1 className="font-heading text-4xl font-bold text-brand-mardi-gras dark:text-text-primary max-w-3xl mx-auto leading-tight">
           Every voice, understood.
         </h1>
         <p className="text-lg text-text-secondary max-w-[600px] mx-auto mt-4 leading-relaxed">
@@ -134,16 +134,16 @@ export default function HomePage() {
       </section>
 
       {/* Built with communities — Picasso yellow */}
-      <section className="bg-picasso dark:bg-[#1A1A08] px-6 py-20 text-center">
+      <section className="bg-brand-picasso dark:bg-[#1A1A08] px-6 py-20 text-center">
         <div className="max-w-container mx-auto">
-          <h2 className="font-heading text-2xl font-semibold text-mardi-gras dark:text-mardi-gras">Built with communities, not just for them.</h2>
-          <p className="text-base text-mardi-gras dark:text-[#E8B0F0] mt-3 max-w-lg mx-auto">
+          <h2 className="font-heading text-2xl font-semibold text-brand-mardi-gras dark:text-text-primary">Built with communities, not just for them.</h2>
+          <p className="text-base text-brand-mardi-gras dark:text-text-secondary mt-3 max-w-lg mx-auto">
             Community health clinics, school districts, legal aid organizations, and civic nonprofits
             create and maintain their own glossaries. Terminology stays under community control.
           </p>
           <div className="mt-6">
             <a href="/orgs/signup">
-              <Button variant="secondary" size="lg" className="border-mardi-gras text-mardi-gras dark:border-[#E8B0F0] dark:text-[#E8B0F0]">
+              <Button variant="secondary" size="lg" className="border-brand-mardi-gras text-brand-mardi-gras dark:border-text-secondary dark:text-text-secondary">
                 Create an org account &mdash; it&apos;s free
               </Button>
             </a>
@@ -152,7 +152,7 @@ export default function HomePage() {
       </section>
 
       {/* Footer — Forest green always-dark */}
-      <footer className="bg-forest px-6 py-12 pb-8">
+      <footer className="bg-brand-forest px-6 py-12 pb-8">
         <div className="max-w-container mx-auto">
           <div className="flex flex-col md:flex-row items-center justify-between gap-4">
             <span className="font-heading text-lg font-semibold text-[#F0EDE6]">Vernacular</span>

@@ -8,7 +8,7 @@ export type ModelLicense =
   | 'CPML'
   | 'CC-BY-NC-SA-4.0';
 
-export type ModelTask = 'asr' | 'translation' | 'tts' | 'pipeline';
+export type ModelTask = 'asr' | 'translation' | 'tts' | 'pipeline' | 'asr-tts-pipeline';
 export type ModelMode = 'fast' | 'balanced' | 'accurate' | 'rare-language';
 export type LicensePermission = 'open' | 'non-commercial';
 export type InferenceBackend =
@@ -711,6 +711,15 @@ export const LANGUAGE_CONFIGS: LanguageConfig[] = [
     defaultTtsModelId: 'melo-tts',
     defaultMode: 'balanced',
     userNotice: 'SenseVoice Small is used for Mandarin \u2014 faster and more accurate than Whisper. MeloTTS handles mixed Chinese-English speech (code-switching) naturally for bilingual contexts.',
+    accuracyCaveat: null,
+  },
+  {
+    code: 'zho_Hant', displayName: 'Chinese (Mandarin, Traditional)', nativeName: '\u666E\u901A\u8BDD\uFF08\u7E41\u9AD4\uFF09',
+    defaultAsrModelId: 'sense-voice-small',
+    defaultTranslationModelId: 'nllb-200-1b',
+    defaultTtsModelId: 'melo-tts',
+    defaultMode: 'balanced',
+    userNotice: 'SenseVoice Small is used \u2014 same accuracy gains as Simplified Mandarin. Translation uses Traditional Chinese script (zho_Hant).',
     accuracyCaveat: null,
   },
   {

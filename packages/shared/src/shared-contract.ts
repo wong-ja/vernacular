@@ -220,6 +220,42 @@ export interface TranslateResponse {
 }
 
 // ─────────────────────────────────────────────
+// SESSION HISTORY
+// ─────────────────────────────────────────────
+
+export interface SessionEntry {
+  id: string;
+  timestamp: Date;
+  type: 'translation' | 'transcription' | 'interpretation-turn';
+  sourceLang: string;
+  targetLang: string;
+  domain: string;
+  sourceText: string;
+  translatedText: string;
+  modelUsed: {
+    asr?: string;
+    translation?: string;
+    tts?: string;
+    mode: ModelMode;
+  };
+  confidence: number;
+  glossaryOverrides: GlossaryOverride[];
+  speakerId?: 'A' | 'B';
+  isEdited?: boolean;
+  isFlagged?: boolean;
+  editedText?: string;
+}
+
+export interface SessionHistory {
+  sessionId: string;
+  startedAt: Date;
+  mode: 'translate' | 'transcribe' | 'interpret';
+  entries: SessionEntry[];
+}
+
+export type HistoryMode = 'translate' | 'transcribe' | 'interpret';
+
+// ─────────────────────────────────────────────
 // API HEALTH
 // ─────────────────────────────────────────────
 

@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Lora:wght@500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Lora:wght@500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
 
 @tailwind base;
 @tailwind components;
@@ -6,79 +6,82 @@
 
 @layer base {
   :root {
-    --color-base:           #F5F3EE;
+    --color-base:           #F4F2ED;
     --color-surface-1:      #FFFFFF;
-    --color-surface-2:      #F0EEE9;
-    --color-surface-3:      #E5E3DE;
+    --color-surface-2:      #F0EDE8;
+    --color-surface-3:      #E6E3DC;
 
-    --color-border:         #D4D2CC;
-    --color-border-subtle:  #E8E6E1;
-    --color-border-strong:  #B8B6B0;
+    --color-border:         #D8D4CC;
+    --color-border-subtle:  #E8E5DF;
+    --color-border-strong:  #B8B4A8;
 
     --color-text-primary:   #1A1207;
-    --color-text-secondary: #5C5E75;
+    --color-text-secondary: #5C6080;
     --color-text-tertiary:  #9496A8;
 
-    --color-accent:         #7B9EF5;
-    --color-accent-light:   #A8BEF7;
-    --color-accent-hover:   #6B8EE5;
+    --color-accent:         #6B8AE8;
+    --color-accent-brand:   #A8BEF7;
+    --color-accent-hover:   #5A7AD8;
     --color-accent-subtle:  #EBF0FF;
     --color-accent-on:      #FFFFFF;
 
     --color-success:        #9AE4E5;
     --color-success-text:   #0A5A5B;
-    --color-success-bg:     #E8FFFE;
-    --color-success-border: #7AD4D5;
+    --color-success-bg:     #E6FFFE;
+    --color-success-border: #70C8C9;
 
     --color-warning:        #FBBEA2;
     --color-warning-text:   #7A3010;
-    --color-warning-bg:     #FFF3EE;
-    --color-warning-border: #F5A080;
+    --color-warning-bg:     #FFF2EC;
+    --color-warning-border: #F0A080;
 
     --color-error:          #F5C0CC;
     --color-error-text:     #A01840;
     --color-error-bg:       #FFF0F4;
-    --color-error-border:   #E8849A;
+    --color-error-border:   #E890A8;
 
     --color-info:           #EBF0FF;
     --color-info-text:      #3040A0;
     --color-info-bg:        #EBF0FF;
     --color-info-border:    #B8C8F8;
 
-    --color-mardi-gras:     #38003D;
-    --color-picasso:        #FFF7AE;
-    --color-forest:         #1D3830;
+    --brand-periwinkle:     #A8BEF7;
+    --brand-picasso:        #FFF7AE;
+    --brand-rose-bud:       #FBBEA2;
+    --brand-water-leaf:     #9AE4E5;
+    --brand-mardi-gras:     #38003D;
+    --brand-forest:         #1D3830;
 
-    --shadow-xs: 0 1px 2px rgba(26,18,7,0.06);
-    --shadow-sm: 0 1px 3px rgba(26,18,7,0.08), 0 1px 2px rgba(26,18,7,0.06);
+    --shadow-xs: 0 1px 2px rgba(26,18,7,0.05);
+    --shadow-sm: 0 2px 4px rgba(26,18,7,0.08), 0 1px 2px rgba(26,18,7,0.04);
     --shadow-md: 0 4px 12px rgba(26,18,7,0.10), 0 2px 4px rgba(26,18,7,0.06);
     --shadow-lg: 0 8px 24px rgba(26,18,7,0.12), 0 4px 8px rgba(26,18,7,0.06);
   }
 
   .dark {
-    --color-base:           #111820;
+    --color-base:           #111720;
     --color-surface-1:      #182030;
-    --color-surface-2:      #1E2A3E;
+    --color-surface-2:      #1E2A3C;
     --color-surface-3:      #243448;
 
-    --color-border:         #2E3E54;
-    --color-border-subtle:  #243448;
-    --color-border-strong:  #3E5068;
+    --color-border:         #2A3850;
+    --color-border-subtle:  #203040;
+    --color-border-strong:  #3A5070;
 
-    --color-text-primary:   #F0EDE6;
+    --color-text-primary:   #EDE9E2;
     --color-text-secondary: #A8BEF7;
     --color-text-tertiary:  #6A7090;
 
     --color-accent:         #A8BEF7;
-    --color-accent-light:   #A8BEF7;
+    --color-accent-brand:   #A8BEF7;
     --color-accent-hover:   #C0D0FF;
     --color-accent-subtle:  #1E2A4A;
-    --color-accent-on:      #0A1020;
+    --color-accent-on:      #111720;
 
     --color-success:        #9AE4E5;
     --color-success-text:   #9AE4E5;
     --color-success-bg:     #0A2828;
-    --color-success-border: #2A6868;
+    --color-success-border: #285858;
 
     --color-warning:        #FBBEA2;
     --color-warning-text:   #FBBEA2;
@@ -95,14 +98,17 @@
     --color-info-bg:        #1E2A4A;
     --color-info-border:    #2E4070;
 
-    --color-mardi-gras:     #E8B0F0;
-    --color-picasso:        #4A4400;
-    --color-forest:         #1D3830;
+    --brand-periwinkle:     #A8BEF7;
+    --brand-picasso:        #FFF7AE;
+    --brand-rose-bud:       #FBBEA2;
+    --brand-water-leaf:     #9AE4E5;
+    --brand-mardi-gras:     #38003D;
+    --brand-forest:         #1D3830;
 
-    --shadow-xs: 0 1px 2px rgba(0,0,0,0.3);
-    --shadow-sm: 0 1px 3px rgba(0,0,0,0.4), 0 1px 2px rgba(0,0,0,0.3);
-    --shadow-md: 0 4px 12px rgba(0,0,0,0.5), 0 2px 4px rgba(0,0,0,0.3);
-    --shadow-lg: 0 8px 24px rgba(0,0,0,0.6), 0 4px 8px rgba(0,0,0,0.3);
+    --shadow-xs: 0 1px 2px rgba(0,0,0,0.25);
+    --shadow-sm: 0 2px 4px rgba(0,0,0,0.35), 0 1px 2px rgba(0,0,0,0.25);
+    --shadow-md: 0 4px 12px rgba(0,0,0,0.45), 0 2px 4px rgba(0,0,0,0.30);
+    --shadow-lg: 0 8px 24px rgba(0,0,0,0.55), 0 4px 8px rgba(0,0,0,0.35);
   }
 
   html {
@@ -174,5 +180,18 @@
 
   .animate-spin {
     animation: spin 0.8s linear infinite;
+  }
+
+  @keyframes pulse-live {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50%       { opacity: 0.6; transform: scale(0.85); }
+  }
+
+  .live-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--brand-water-leaf);
+    animation: pulse-live 1.5s ease-in-out infinite;
   }
 }
