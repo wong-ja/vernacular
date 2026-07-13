@@ -289,7 +289,7 @@ from fastapi import Request, UploadFile, File, Form
 import tempfile
 import os
 
-@demo.app.post("/api/translate")
+@demo.app.post("/inference/translate")
 async def translate_api(request: Request):
     data = await request.json()
     text = data.get("text", "")
@@ -312,7 +312,7 @@ async def translate_api(request: Request):
         },
     }
 
-@demo.app.post("/api/transcribe")
+@demo.app.post("/inference/transcribe")
 async def transcribe_api(audio: UploadFile = File(...), source_lang: str = Form("")):
     ext = os.path.splitext(audio.filename or "audio.wav")[1] or ".wav"
     fd, path = tempfile.mkstemp(suffix=ext)

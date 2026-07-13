@@ -18,7 +18,7 @@ export default async function handler(req: any, res: any) {
     }
 
     const base = getInferenceBaseUrl();
-    const inferRes = await fetch(`${base}/api/translate`, {
+    const inferRes = await fetch(`${base}/inference/translate`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ text, sourceLang, targetLang }),

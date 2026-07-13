@@ -47,7 +47,7 @@ export default async function handler(req: any, res: any) {
     const form = new FormData();
     form.append('audio', new Blob([new Uint8Array(extracted.buffer)]), extracted.filename);
     form.append('source_lang', '');
-    const inferRes = await fetch(`${base}/api/transcribe`, {
+    const inferRes = await fetch(`${base}/inference/transcribe`, {
       method: 'POST',
       body: form,
     });
