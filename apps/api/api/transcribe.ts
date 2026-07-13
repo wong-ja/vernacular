@@ -23,10 +23,11 @@ export default async function handler(req: any, res: any) {
     const body = await readFormData(req);
     const contentType = req.headers['content-type'] || 'application/octet-stream';
 
+    const bodyInit: BodyInit = new Uint8Array(body);
     const submitRes = await fetch(`${base}/api/predict`, {
       method: 'POST',
       headers: { 'Content-Type': contentType },
-      body as unknown as BodyInit,
+      body: bodyInit,
     });
 
     if (!submitRes.ok) {
