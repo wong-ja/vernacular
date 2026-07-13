@@ -36,24 +36,10 @@ function conf(score: number | null | undefined) {
 const LS_PAIR = 'vernacular-lang-pair';
 const LS_REV = 'vernacular-reverse';
 
-function loadPair(): [string, string] {
-  if (typeof window === 'undefined') return ['eng_Latn', 'spa_Latn'];
-  try {
-    const p = JSON.parse(localStorage.getItem(LS_PAIR) || 'null') as unknown;
-    if (Array.isArray(p) && p.length === 2 && typeof p[0] === 'string' && typeof p[1] === 'string') return p as [string, string];
-  } catch { /* */ }
-  return ['eng_Latn', 'spa_Latn'];
-}
-
-function loadRev(): boolean {
-  if (typeof window === 'undefined') return false;
-  try { return localStorage.getItem(LS_REV) === 'true'; } catch { return false; }
-}
-
 export default function TranslatePage() {
   const { history, addEntry, clear } = useSessionHistory('translate');
   const [text, setText] = useState('');
-  const [[srcLang, tgtLang], setPair] = useState<[string, string]>(loadPair);
+  const [[srcLang, tgtLang], setPair] = useState<[string, string]>(['eng_Latn', 'spa_Latn']);
   const [domain, setDomain] = useState('general');
   const [mode, setMode] = useState<ModelMode>('balanced');
   const [overrides, setOverrides] = useState<ModelOverrides>({});
@@ -61,13 +47,24 @@ export default function TranslatePage() {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const [copied, setCopied] = useState(false);
-  const [revOn, setRevOn] = useState(loadRev);
+  const [revOn, setRevOn] = useState(false);
   const [revResult, setRevResult] = useState<string | null>(null);
   const [revLoading, setRevLoading] = useState(false);
   const [revError, setRevError] = useState('');
   const [revCopied, setRevCopied] = useState(false);
   const [historyOpen, setHistoryOpen] = useState(false);
   const [modelSwitchNotice, setModelSwitchNotice] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    try {
+      const p = JSON.parse(localStorage.getItem(LS_PAIR) || 'null');
+      if (Array.isArray(p) && p.length === 2 && typeof p[0] === 'string' && typeof p[1] === 'string') {
+        setPair(p as [string, string]);
+      }
+      setRevOn(localStorage.getItem(LS_REV) === 'true');
+    } catch { /* */ }
+  }, []);
 
   useEffect(() => {
     try { localStorage.setItem(LS_PAIR, JSON.stringify([srcLang, tgtLang])); } catch { /* */ }
