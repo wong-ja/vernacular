@@ -1,4 +1,4 @@
-import { getInferenceBaseUrl, readJsonBody, sendJson, sendError, gradioCall } from './inference.js';
+import { getInferenceBaseUrl, readJsonBody, sendJson, sendError } from './inference.js';
 
 export default async function handler(req: any, res: any) {
   res.setHeader('Content-Type', 'application/json');
@@ -18,23 +18,20 @@ export default async function handler(req: any, res: any) {
     }
 
     const base = getInferenceBaseUrl();
-    const data = await gradioCall(base, 'translate', [text, sourceLang, targetLang]);
-
-    sendJson(res, 200, {
-      status: 'ok',
-      data: {
-        translation: (data[0] as string) || '',
-        modelUsed: 'NLLB-200',
-        processingTimeMs: (data[1] as number) || 0,
-        glossaryOverrides: [],
-        confidence: null,
-        needsReview: false,
-        sourceLang,
-        targetLang,
-        translationModelId: 'NLLB-200',
-        mode: 'balanced',
-      },
+    const inferRes = await fetch(`${base}/api/translate`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ text, sourceLang, targetLang }),
     });
+
+    if (!inferRes.ok) {
+      const txt = await inferRes.text().catch(() => '');
+      sendError(res, 502, `Inference error (${inferRes.status}): ${txt.slice(0, 300)}`);
+      return;
+    }
+
+    const result = await inferRes.json();
+    sendJson(res, 200, result);
   } catch (err: any) {
     sendError(res, 500, err?.message || 'Internal error', { stack: err?.stack });
   }

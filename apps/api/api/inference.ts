@@ -43,12 +43,25 @@ function isJsonResponse(res: Response, body: string): boolean {
 
 /** Call a Gradio 4.x function. Makes a single fast attempt — caller retries if space is sleeping. */
 export async function gradioCall(baseUrl: string, fnName: string, args: unknown[]): Promise<unknown[]> {
+  const sessionHash = Math.random().toString(36).substring(2, 15);
+
   const patterns = [
-    { path: `/api/call/${fnName}/`, body: { data: args } },
-    { path: `/api/call/${fnName}`, body: { data: args } },
-    { path: `/api/predict/`, body: { data: args, api_name: fnName } },
-    { path: `/api/predict`, body: { data: args, api_name: fnName } },
+    // Gradio 4.x event-driven
+    { path: `/gradio_api/call/${fnName}/`, body: { data: args, session_hash: sessionHash } },
+    { path: `/gradio_api/call/${fnName}`, body: { data: args, session_hash: sessionHash } },
+    { path: `/api/call/${fnName}/`, body: { data: args, session_hash: sessionHash } },
+    { path: `/api/call/${fnName}`, body: { data: args, session_hash: sessionHash } },
+    // Gradio 3.x legacy
+    { path: `/gradio_api/predict/`, body: { data: args, api_name: fnName, session_hash: sessionHash } },
+    { path: `/gradio_api/predict`, body: { data: args, api_name: fnName, session_hash: sessionHash } },
+    { path: `/api/predict/`, body: { data: args, api_name: fnName, session_hash: sessionHash } },
+    { path: `/api/predict`, body: { data: args, api_name: fnName, session_hash: sessionHash } },
   ];
+
+  const apiHeaders = {
+    'Content-Type': 'application/json',
+    'X-Requested-With': 'XMLHttpRequest',
+  };
 
   for (const { path, body } of patterns) {
     const ac = new AbortController();
@@ -57,19 +70,18 @@ export async function gradioCall(baseUrl: string, fnName: string, args: unknown[
     try {
       submitRes = await fetch(`${baseUrl}${path}`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: apiHeaders,
         body: JSON.stringify(body),
         signal: ac.signal,
       });
     } catch {
       clearTimeout(timer);
-      continue; // timeout or network error — try next pattern
+      continue;
     }
     clearTimeout(timer);
 
     const bodyText = await submitRes.text().catch(() => '');
 
-    // HTML response = space is sleeping / not ready
     if (!isJsonResponse(submitRes, bodyText)) {
       continue;
     }
@@ -89,7 +101,7 @@ export async function gradioCall(baseUrl: string, fnName: string, args: unknown[
     for (let i = 0; i < 180; i++) {
       await new Promise((r) => setTimeout(r, 1000));
       for (const suffix of [`/${eventId}/`, `/${eventId}`]) {
-        const pollRes = await fetch(`${baseUrl}${path}${suffix}`);
+        const pollRes = await fetch(`${baseUrl}${path}${suffix}`, { headers: apiHeaders });
         if (!pollRes.ok) continue;
         const text = await pollRes.text();
         let resultData: unknown[] | null = null;
@@ -105,5 +117,5 @@ export async function gradioCall(baseUrl: string, fnName: string, args: unknown[
     }
     throw new Error('Gradio inference timed out');
   }
-  throw new Error('Space is starting up — retry in a moment');
+  throw new Error(`Space is starting up — retry in a moment`);
 }

@@ -1,4 +1,4 @@
-import { getInferenceBaseUrl, sendJson, sendError, gradioCall } from './inference.js';
+import { getInferenceBaseUrl, sendJson, sendError } from './inference.js';
 
 function readFormData(req: any): Promise<Buffer> {
   return new Promise((resolve, reject) => {
@@ -43,30 +43,23 @@ export default async function handler(req: any, res: any) {
       return;
     }
 
-    // Upload file to Gradio's temp storage
-    const uploadForm = new FormData();
-    uploadForm.append('files', new Blob([new Uint8Array(extracted.buffer)]), extracted.filename);
-    const uploadRes = await fetch(`${base}/api/upload`, {
+    // Forward to inference app's direct transcribe endpoint
+    const form = new FormData();
+    form.append('audio', new Blob([new Uint8Array(extracted.buffer)]), extracted.filename);
+    form.append('source_lang', '');
+    const inferRes = await fetch(`${base}/api/transcribe`, {
       method: 'POST',
-      body: uploadForm,
+      body: form,
     });
-    if (!uploadRes.ok) {
-      const txt = await uploadRes.text().catch(() => '');
-      sendError(res, 502, `Gradio upload error (${uploadRes.status}): ${txt.slice(0, 200)}`);
+
+    if (!inferRes.ok) {
+      const txt = await inferRes.text().catch(() => '');
+      sendError(res, 502, `Inference error (${inferRes.status}): ${txt.slice(0, 300)}`);
       return;
     }
-    const uploadResult = await uploadRes.json() as { path: string }[];
-    const filePath = uploadResult[0]?.path;
-    if (!filePath) throw new Error('Gradio upload did not return a file path');
 
-    // Call transcribe
-    const data = await gradioCall(base, 'transcribe', [filePath, '']);
-
-    const jsonStr = data[0] as string;
-    let result: Record<string, unknown>;
-    try { result = JSON.parse(jsonStr || '{}'); } catch { result = {}; }
-
-    sendJson(res, 200, { status: 'ok', data: result });
+    const result = await inferRes.json();
+    sendJson(res, 200, result);
   } catch (err: any) {
     sendError(res, 500, err?.message || 'Internal error', { stack: err?.stack });
   }

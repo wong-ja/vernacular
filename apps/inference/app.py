@@ -282,5 +282,52 @@ with gr.Blocks(
 
 demo.queue()
 
+# ---------------------------------------------------------------------------
+# Direct API endpoints (bypass Gradio routing — compatible with HF Spaces proxy)
+# ---------------------------------------------------------------------------
+from fastapi import Request, UploadFile, File, Form
+import tempfile
+import os
+
+@demo.app.post("/api/translate")
+async def translate_api(request: Request):
+    data = await request.json()
+    text = data.get("text", "")
+    source_lang = data.get("sourceLang", "eng_Latn")
+    target_lang = data.get("targetLang", "spa_Latn")
+    result = translate(text, source_lang, target_lang)
+    return {
+        "status": "ok",
+        "data": {
+            "translation": result[0],
+            "processingTimeMs": result[1],
+            "modelUsed": "NLLB-200",
+            "glossaryOverrides": [],
+            "confidence": None,
+            "needsReview": False,
+            "sourceLang": source_lang,
+            "targetLang": target_lang,
+            "translationModelId": "NLLB-200",
+            "mode": "balanced",
+        },
+    }
+
+@demo.app.post("/api/transcribe")
+async def transcribe_api(audio: UploadFile = File(...), source_lang: str = Form("")):
+    ext = os.path.splitext(audio.filename or "audio.wav")[1] or ".wav"
+    fd, path = tempfile.mkstemp(suffix=ext)
+    try:
+        content = await audio.read()
+        with os.fdopen(fd, "wb") as f:
+            f.write(content)
+        result = transcribe(path, source_lang)
+        return {
+            "status": "ok",
+            "data": json.loads(result[0]),
+        }
+    finally:
+        try: os.unlink(path)
+        except: pass
+
 if __name__ == "__main__":
     demo.launch(share=True)
