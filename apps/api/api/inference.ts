@@ -39,7 +39,7 @@ export function sendError(res: any, code: number, message: string, extra?: Recor
 
 /** Call a Gradio 4.x function via the event-driven API and return its outputs. */
 export async function gradioCall(baseUrl: string, fnName: string, args: unknown[]): Promise<unknown[]> {
-  const submitRes = await fetch(`${baseUrl}/gradio_api/call/${fnName}`, {
+  const submitRes = await fetch(`${baseUrl}/api/call/${fnName}`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ data: args }),
@@ -56,7 +56,7 @@ export async function gradioCall(baseUrl: string, fnName: string, args: unknown[
   const eventId = submitResult.event_id as string;
   for (let i = 0; i < 180; i++) {
     await new Promise((r) => setTimeout(r, 1000));
-    const pollRes = await fetch(`${baseUrl}/gradio_api/call/${fnName}/${eventId}`);
+    const pollRes = await fetch(`${baseUrl}/api/call/${fnName}/${eventId}`);
     if (!pollRes.ok) continue;
     const text = await pollRes.text();
     let resultData: unknown[] | null = null;

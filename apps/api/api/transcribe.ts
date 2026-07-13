@@ -46,7 +46,7 @@ export default async function handler(req: any, res: any) {
     // Upload file to Gradio's temp storage
     const uploadForm = new FormData();
     uploadForm.append('files', new Blob([new Uint8Array(extracted.buffer)]), extracted.filename);
-    const uploadRes = await fetch(`${base}/gradio_api/upload`, {
+    const uploadRes = await fetch(`${base}/api/upload`, {
       method: 'POST',
       body: uploadForm,
     });
