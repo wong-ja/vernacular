@@ -49,6 +49,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
           resolve({ status: pRes.statusCode || 500, headers: hdrs, body: Buffer.concat(chunks).toString('utf-8') });
         });
       });
+      preq.setTimeout(9000, () => { preq.destroy(); reject(new Error('API request timed out')); });
       preq.on('error', reject);
       preq.write(rawBody);
       preq.end();
