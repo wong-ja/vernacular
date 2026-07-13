@@ -133,7 +133,7 @@ export default function InterpretPage() {
                 </div>
               )}
             </div>
-            <Button variant="error" size="sm" onClick={() => {}}>End session</Button>
+            <Button variant="destructive" size="sm" onClick={() => {}}>End session</Button>
           </div>
 
           {/* Mode toggle */}
@@ -266,7 +266,7 @@ export default function InterpretPage() {
           {/* Controls bar */}
           <div className="bg-surface-1 border border-border rounded-xl shadow-xs p-3 flex items-center gap-3 flex-wrap">
             {recording ? (
-              <Button variant="error" size="sm" onClick={toggleRecording}>
+              <Button variant="destructive" size="sm" onClick={toggleRecording}>
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" className="mr-1"><rect x="4" y="4" width="16" height="16" rx="2"/></svg>
                 Stop
               </Button>
