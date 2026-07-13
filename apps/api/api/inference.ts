@@ -37,37 +37,67 @@ export function sendError(res: any, code: number, message: string, extra?: Recor
   sendJson(res, code, { status: 'error', message, ...extra });
 }
 
-/** Call a Gradio 4.x function via the event-driven API and return its outputs. */
+function isJsonResponse(res: Response, body: string): boolean {
+  return (res.headers.get('content-type') || '').includes('json') || body.startsWith('{') || body.startsWith('[');
+}
+
+/** Call a Gradio 4.x function, retrying while the ZeroGPU space wakes up. */
 export async function gradioCall(baseUrl: string, fnName: string, args: unknown[]): Promise<unknown[]> {
-  const submitRes = await fetch(`${baseUrl}/api/call/${fnName}`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ data: args }),
-  });
-  if (!submitRes.ok) {
-    const txt = await submitRes.text().catch(() => '');
-    throw new Error(`Gradio submit error (${submitRes.status}): ${txt.slice(0, 300)}`);
-  }
-  const submitResult = await submitRes.json() as Record<string, unknown>;
-  if (!submitResult.event_id) {
-    const direct = (submitResult.data as unknown[]) || [];
-    return direct;
-  }
-  const eventId = submitResult.event_id as string;
-  for (let i = 0; i < 180; i++) {
-    await new Promise((r) => setTimeout(r, 1000));
-    const pollRes = await fetch(`${baseUrl}/api/call/${fnName}/${eventId}`);
-    if (!pollRes.ok) continue;
-    const text = await pollRes.text();
-    let resultData: unknown[] | null = null;
-    let complete = false;
-    for (const ln of text.split('\n')) {
-      if (ln.startsWith('event: complete')) complete = true;
-      if (ln.startsWith('data: ')) {
-        try { resultData = JSON.parse(ln.slice(6)); } catch { /* skip */ }
+  const patterns = [
+    { path: `/api/call/${fnName}/`, body: { data: args } },
+    { path: `/api/call/${fnName}`, body: { data: args } },
+    { path: `/api/predict/`, body: { data: args, api_name: fnName } },
+    { path: `/api/predict`, body: { data: args, api_name: fnName } },
+  ];
+
+  const deadline = Date.now() + 120_000; // 2 min total for wake-up + inference
+  while (Date.now() < deadline) {
+    for (const { path, body } of patterns) {
+      const submitRes = await fetch(`${baseUrl}${path}`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(body),
+      });
+      const bodyText = await submitRes.text().catch(() => '');
+
+      // If response is HTML (not JSON), the Space might be starting up — retry
+      if (!isJsonResponse(submitRes, bodyText)) {
+        continue;
       }
+
+      if (!submitRes.ok) {
+        throw new Error(`Gradio submit error (${submitRes.status}): ${bodyText.slice(0, 300)}`);
+      }
+
+      let submitResult: Record<string, unknown>;
+      try { submitResult = JSON.parse(bodyText); } catch { continue; }
+
+      if (!submitResult.event_id) {
+        return (submitResult.data as unknown[]) || [];
+      }
+
+      const eventId = submitResult.event_id as string;
+      for (let i = 0; i < 180; i++) {
+        await new Promise((r) => setTimeout(r, 1000));
+        for (const suffix of [`/${eventId}/`, `/${eventId}`]) {
+          const pollRes = await fetch(`${baseUrl}${path}${suffix}`);
+          if (!pollRes.ok) continue;
+          const text = await pollRes.text();
+          let resultData: unknown[] | null = null;
+          let complete = false;
+          for (const ln of text.split('\n')) {
+            if (ln.startsWith('event: complete')) complete = true;
+            if (ln.startsWith('data: ')) {
+              try { resultData = JSON.parse(ln.slice(6)); } catch { /* skip */ }
+            }
+          }
+          if (complete && resultData) return resultData;
+        }
+      }
+      throw new Error('Gradio inference timed out');
     }
-    if (complete && resultData) return resultData;
+    // All patterns returned HTML (space probably still waking up)
+    await new Promise((r) => setTimeout(r, 3000));
   }
-  throw new Error('Gradio inference timed out');
+  throw new Error('Gradio API unreachable — space did not wake up within 2 minutes');
 }
